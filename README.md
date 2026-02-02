@@ -36,8 +36,9 @@ Convert your Perchance AI Character Chat conversations into properly formatted b
 
 ## 📸 Screenshots
 
-<img src="screenshots/msedge_EqS7LAHCXM.png" width="600">
-<img src="screenshots/msedge_jsG5O0djMY.png" width="600">
+![Step 1](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/msedge_EqS7LAHCXM.png)
+![Step 2](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/msedge_jsG5O0djMY.png)
+
 
 
 ## 💯 Free & Open Source
