@@ -2,6 +2,17 @@
 
 Convert your Perchance AI Character Chat conversations into properly formatted books (EPUB/TXT/HTML).
 
+## 🚀 Quick Start
+
+**Try online (no download needed):**
+- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
+- [Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
+
+**Or download for offline use:**
+- [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html)
+- [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html)
+
+
 ## ✨ Features
 
 - Single HTML file - works offline, no installation needed
@@ -12,10 +23,6 @@ Convert your Perchance AI Character Chat conversations into properly formatted b
 - Dark theme optimized for mobile
 
 ## 🚀 How to Use
-
-### Download:
-- [English version](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi%20Studio_EN.html) - Right click → Save as
-- [Russian version](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi%20Studio_RU.html) - Right click → Save as
 
 ### Steps:
 
