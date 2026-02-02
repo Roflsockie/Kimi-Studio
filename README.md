@@ -1,57 +1,80 @@
-# 📖 Kimi Studio
+# 🎭 Kimi Studio
 
-Convert your Perchance AI Character Chat conversations into properly formatted books (EPUB/TXT/HTML).
+**AI-Powered Book Creator** — Create professional books with AI assistance directly in your browser. No installation required!
 
 ## 🚀 Quick Start
 
-**Try online (no download needed):**
-- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
-- [Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
+### Try Online (Recommended)
+No download needed — works instantly in your browser:
 
-**Or download for offline use:**
-- [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html)
-- [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html)
+- **[🇬🇧 English Version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)**
+- **[🇷🇺 Russian Version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)**
 
+### Download for Offline Use
+- [📥 Download English Version](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html)
+- [📥 Download Russian Version](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html)
 
-## ✨ Features
-
-- Single HTML file - works offline, no installation needed
-- Export to EPUB (for e-readers), TXT, HTML
-- Character tag renaming ([AI]: → Character Name:)
-- Text formatting (removes markdown, fixes quotes)
-- Download individual chapters or entire book as ZIP
-- Dark theme optimized for mobile
-
-## 🚀 How to Use
-
-### Steps:
-
-1. **Prepare your chat** in Perchance AI:
-   - Add `## Chapter 1 Title` before each chapter
-   - Save entire chat as .txt file
-
-2. **Open** the downloaded HTML file in your browser
-
-3. **Import** your .txt file
-
-4. **Process:**
-   - Click "Split" to detect chapters
-   - Use "Names" to rename character tags
-   - Click "Format" to clean up text
-
-5. **Export** to EPUB/TXT/HTML
-
-## 📸 Screenshots
-
-![Step 1](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/msedge_EqS7LAHCXM.png)
-![Step 2](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/msedge_jsG5O0djMY.png)
-
-
-
-## 💯 Free & Open Source
-
-If you find this tool useful: [Support development ☕](https://send.monobank.ua/jar/2qiYgvFTRG)
+> **Tip:** Right-click → "Save As..." to download
 
 ---
 
-*Created after 28 iterations. Works completely offline. One HTML file, no dependencies.*
+## ✨ Features
+
+- 📚 **AI Book Generation** — Create complete books with AI assistance
+- 🎨 **Beautiful Interface** — Clean, modern design
+- 💾 **Export Options** — Save your work in multiple formats
+- 🌐 **Works Offline** — No internet needed after download
+- 🔒 **Privacy First** — All processing happens in your browser
+- 📱 **Mobile Friendly** — Works on phones and tablets
+
+---
+
+## 🎯 How to Use
+
+1. **Open** the tool in your browser
+2. **Enter your prompt** — Describe the book you want to create
+3. **Generate** — Let AI create your content
+4. **Edit & Refine** — Customize the output
+5. **Export** — Download your finished book
+
+---
+
+## 🛠️ Technical Details
+
+- **Framework:** Pure HTML/CSS/JavaScript
+- **AI Integration:** Kimi AI API
+- **File Size:** ~30KB (lightweight!)
+- **Requirements:** Modern web browser (Chrome, Firefox, Safari, Edge)
+- **License:** Free to use
+
+---
+
+## 📸 Screenshots
+
+![Screenshot](screenshots/msedge_Eq57LAHCXM.png)
+![Screenshot](screenshots/msedge_jsG5O0djMY.png)
+
+---
+
+## 💡 Tips
+
+- Use detailed prompts for better results
+- Experiment with different writing styles
+- Save your work frequently
+- Check the examples section for inspiration
+
+---
+
+## 🐛 Issues or Questions?
+
+[Open an issue](https://github.com/Roflsockie/Kimi-Studio/issues) if you encounter any problems or have suggestions!
+
+---
+
+## 🌟 Star this project!
+
+If you find Kimi Studio useful, please consider giving it a star ⭐
+
+---
+
+**Made with ❤️ using AI**
