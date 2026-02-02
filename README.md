@@ -36,11 +36,9 @@ Convert your Perchance AI Character Chat conversations into properly formatted b
 
 ## 📸 Screenshots
 
-### Adding chapter markers in Perchance:
-![Step 1](screenshots/msedge_EqS7LAHCXM.png)
+<img src="screenshots/msedge_EqS7LAHCXM.png" width="600">
+<img src="screenshots/msedge_jsG5O0djMY.png" width="600">
 
-### Processing in Kimi Studio:
-![Step 2](screenshots/msedge_jsG5O0djMY.png)
 
 ## 💯 Free & Open Source
 
