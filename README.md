@@ -34,6 +34,14 @@ Convert your Perchance AI Character Chat conversations into properly formatted b
 
 5. **Export** to EPUB/TXT/HTML
 
+## 📸 Screenshots
+
+### Adding chapter markers in Perchance:
+![Step 1](screenshots/msedge_EqS7LAHCXM.png)
+
+### Processing in Kimi Studio:
+![Step 2](screenshots/msedge_jsG5O0djMY.png)
+
 ## 💯 Free & Open Source
 
 If you find this tool useful: [Support development ☕](https://send.monobank.ua/jar/2qiYgvFTRG)
