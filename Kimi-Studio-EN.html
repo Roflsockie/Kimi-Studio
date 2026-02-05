@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>📖 Kimi Book Studio</title>
+    <!-- Библиотеки -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html, body { width: 100%; height: 100%; }
+        body { 
+            background: #0a0a0a; 
+            color: #fff; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body { padding-top: max(12px, env(safe-area-inset-top)); }
+
+        .app { display: flex; flex-direction: column; min-height: 100vh; }
+        .app-header { 
+            background: linear-gradient(135deg, #0dd 0%, #09a 100%);
+            color: #000;
+            padding: 16px 16px max(16px, env(safe-area-inset-bottom));
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 221, 221, 0.3);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .app-header h1 { font-size: 24px; font-weight: 600; }
+        .app-header p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+        .app-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* TABS */
+        .tabs { 
+            display: flex; gap: 0; background: #1a1a1a;
+            border-top: 1px solid #333; position: sticky; bottom: 0; z-index: 50;
+        }
+        .tab-btn { 
+            flex: 1; background: none; border: none; color: #666; padding: 12px 8px;
+            cursor: pointer; font-weight: 600; font-size: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            border-bottom: 3px solid transparent; transition: all 0.2s;
+        }
+        .tab-btn.active { color: #0dd; border-bottom-color: #0dd; }
+        .tab-btn:active { background: rgba(0, 221, 221, 0.1); }
+
+        .tab-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; padding-bottom: 80px; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* BUTTONS */
+        button {
+            width: 100%; padding: 14px 16px; margin-bottom: 8px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        button:active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
+        button.primary { background: linear-gradient(135deg, #0dd 0%, #09a 100%); color: #000; }
+        button.secondary { background: #555; color: #fff; }
+        button.success { background: linear-gradient(135deg, #0a0 0%, #080 100%); color: #fff; }
+        button.danger { background: linear-gradient(135deg, #f55 0%, #d33 100%); color: #fff; }
+        button.info { background: linear-gradient(135deg, #15f 0%, #13d 100%); color: #fff; }
+
+        /* INPUTS */
+        input[type="text"], textarea, select {
+            width: 100%; padding: 12px 14px; margin-bottom: 12px; background: #1a1a1a;
+            border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 16px;
+            font-family: inherit; transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #0dd; box-shadow: 0 0 0 3px rgba(0, 221, 221, 0.1); }
+        textarea { resize: vertical; min-height: 120px; font-family: 'Courier New', monospace; }
+
+        /* FILE INPUT */
+        input[type="file"] { display: none; }
+        .file-btn {
+            display: block; padding: 16px; background: #1a1a1a; border: 2px dashed #0dd;
+            border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 12px;
+            color: #0dd; font-weight: 600; font-size: 14px; transition: all 0.2s;
+        }
+        .file-btn:active { background: rgba(0, 221, 221, 0.1); }
+
+        /* CARDS */
+        .card {
+            background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
+            padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        .card h3 { color: #0dd; font-size: 14px; margin-bottom: 10px; }
+
+        /* LOG */
+        .log-box {
+            background: #000; border: 1px solid #333; border-radius: 8px; padding: 10px;
+            font-size: 12px; max-height: 100px; overflow-y: auto; color: #0f0;
+            font-family: 'Courier New', monospace; margin-bottom: 12px; line-height: 1.4;
+        }
+
+        .info-block {
+            background: rgba(0, 221, 221, 0.1); border-left: 3px solid #0dd;
+            padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px;
+        }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .btn-group button { padding: 10px 8px; font-size: 11px; margin-bottom: 0; background: #333; color: #0dd; border: 1px solid #0dd; }
+
+        .rename-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .rename-grid label { font-size: 12px; color: #999; display: block; margin-bottom: 4px; font-weight: 600; }
+        .rename-grid input { margin-bottom: 8px; padding: 10px 12px; font-size: 14px; }
+
+        #cover-preview {
+            max-width: 140px; height: auto; max-height: 200px; border-radius: 8px;
+            display: block; margin: 0 auto 12px; border: 1px solid #333; object-fit: cover;
+        }
+
+        /* MODAL */
+        #rename-section {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8); z-index: 200; display: none;
+            flex-direction: column; justify-content: flex-end; animation: slideUp 0.3s ease-out;
+        }
+        #rename-section.show { display: flex; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-content {
+            background: #1a1a1a; padding: 20px; border-radius: 16px 16px 0 0;
+            max-height: 80vh; overflow-y: auto; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+        }
+        .modal-content h3 { color: #0dd; margin-bottom: 16px; font-size: 16px; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+        /* MEDIA QUERIES */
+        @media (min-width: 768px) {
+            body { font-size: 14px; }
+            .tab-content { padding: 24px; padding-bottom: 120px; }
+            .btn-group { grid-template-columns: 1fr 1fr; }
+            .export-grid { display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: start; }
+        }
+        @media (min-width: 1024px) {
+            .app { flex-direction: row; }
+            .app-header { writing-mode: vertical-rl; text-orientation: mixed; padding: 16px 12px; min-width: 200px; }
+            .tabs { flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; width: auto; border-top: none; border-right: 1px solid #333; }
+            .tab-btn { border-bottom: none; border-right: 3px solid transparent; }
+            .tab-btn.active { border-right-color: #0dd; }
+            .app-content { margin-left: 0; }
+        }
+        @media (max-width: 480px) {
+            .rename-grid { grid-template-columns: 1fr; }
+            .export-grid { display: flex; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="app-header">
+        <h1>📖 Kimi Studio</h1>
+        <p>Текстовый редактор для книг</p>
+    </div>
+
+    <div class="app-content">
+        <div id="import" class="tab-pane active">
+            <button class="secondary" onclick="clearLog()">🗑️ Очистить лог</button>
+            <div class="log-box" id="log"></div>
+
+            <div class="info-block">
+                💡 Разметка: <code>## Глава 1 Название</code><br>
+                Теги: <code>[AI]: текст</code>
+            </div>
+
+            <label class="file-btn" for="file">📁 Загрузить файл</label>
+            <input type="file" id="file" accept=".txt,.json,.html,.md">
+
+            <textarea id="text" placeholder="Или вставьте текст здесь..."></textarea>
+
+            <button class="primary" onclick="processText()">✂️ Разбить</button>
+            <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Имена</button>
+            <button class="primary" onclick="formatText()">✨ Форматировать</button>
+            <button class="secondary" onclick="downloadAllZip()">📦 ZIP</button>
+            <button class="success" onclick="showTab('export')">📤 Экспорт</button>
+            <button class="secondary" onclick="clearAll()">⚠️ Очистить всё</button>
+        </div>
+
+        <div id="chapters" class="tab-pane">
+            <h2>📚 Главы</h2>
+            <div id="chapters-list" class="chapters-list"></div>
+        </div>
+
+        <div id="export" class="tab-pane">
+            <h2>📤 Экспорт</h2>
+            
+            <div class="export-grid">
+                <div style="text-align: center;">
+                    <img id="cover-preview" style="display: none;" alt="Постер">
+                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Постер</label>
+                    <input type="file" id="cover" accept="image/*">
+                </div>
+
+                <div style="width: 100%;">
+                    <input type="text" id="book-title" placeholder="📖 Название книги">
+                    <input type="text" id="book-author" placeholder="✍️ Автор">
+                    <input type="text" id="book-genre" placeholder="🎭 Жанр (например: Фантастика)">
+                    <input type="text" id="book-date" placeholder="📅 Дата написания">
+                    <textarea id="book-desc" placeholder="📝 Описание книги..." style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="danger" onclick="downloadFullTXT()">📝 TXT (Вся книга)</button>
+                <button class="danger" onclick="downloadEPUB()">⬇️ EPUB (Электронная книга)</button>
+                <button class="info" onclick="downloadHTML()">🌐 HTML (Веб-книга с навигацией)</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('import')">📥 Импорт</button>
+        <button class="tab-btn" onclick="showTab('chapters')">📚 Главы</button>
+        <button class="tab-btn" onclick="showTab('export')">📤 Экспорт</button>
+    </div>
+</div>
+
+<div id="rename-section">
+    <div class="modal-content">
+        <h3>Переименовать персонажей</h3>
+        <div id="rename-fields" class="rename-grid"></div>
+        <button class="primary" onclick="applyRenames(); closeModal()">✓ Применить</button>
+        <button class="secondary" onclick="closeModal()">Отмена</button>
+    </div>
+</div>
+
+<script>
+let state = {
+    chapters: [],
+    uniqueTags: new Set(),
+    tagMap: {},
+    cover: null
+};
+let logs = [];
+
+function normalizeSpaces(text) {
+    return text.replace(/\u00A0/g, ' ').replace(/\u2002/g, ' ').replace(/\u2003/g, ' ').replace(/  +/g, ' ').replace(/\u200B/g, '').trim();
+}
+
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+function stripHtmlTags(text) {
+    return text.replace(/<[^>]*>/g, '');
+}
+
+function log(msg) {
+    logs.push(msg);
+    const logEl = document.getElementById('log');
+    logEl.textContent = logs.join('\n');
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+function clearLog() {
+    logs = [];
+    document.getElementById('log').textContent = '';
+}
+
+function showTab(name) {
+    document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(name).classList.add('active');
+    document.querySelector(`[onclick*="showTab('${name}')"]`).classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('rename-section').classList.remove('show');
+}
+
+document.getElementById('file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+        let text = evt.target.result;
+        if (file.name.endsWith('.json')) {
+            try {
+                const json = JSON.parse(text);
+                let msgs = Array.isArray(json) ? json : json.messages || json.data || json.chats || [];
+                if (!msgs.length) for (let k in json) if (Array.isArray(json[k])) { msgs = json[k]; break; }
+                text = msgs.map(m => typeof m === 'string' ? m : m.text || m.message || m.content || '').filter(t => t.trim()).join('\n');
+            } catch(e) {}
+        }
+        document.getElementById('text').value = text;
+        log('✓ Файл: ' + file.name);
+    };
+    reader.readAsText(file);
+});
+
+document.getElementById('cover').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+        state.cover = evt.target.result;
+        document.getElementById('cover-preview').src = evt.target.result;
+        document.getElementById('cover-preview').style.display = 'block';
+        log('✓ Постер загружен');
+    };
+    reader.readAsDataURL(file);
+});
+
+function processText() {
+    const raw = document.getElementById('text').value.trim();
+    if (!raw) { alert('Введите текст!'); return; }
+    
+    state.chapters = [];
+    state.uniqueTags = new Set();
+    state.tagMap = {};
+    
+    let lines = raw.split('\n');
+    let ch = null, content = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        let tagPrefix = '';
+        if (/^\[.*\]:?\s*##\s+Глава/i.test(line)) {
+            const tagMatch = line.match(/^(\[.*?\]:?)\s*(##\s+Глава.*)/i);
+            if (tagMatch) { tagPrefix = tagMatch[1]; line = tagMatch[2]; }
+        }
+        if (/^##\s+Глава\s+\d+/i.test(line)) {
+            if (ch) addChapter(ch, content.join('\n').trim());
+            const titleText = line.replace(/^##\s+Глава\s+\d+\s*/i, '').trim();
+            ch = titleText;
+            content = [];
+            if (tagPrefix) content.push(tagPrefix);
+        } else if (ch) {
+            content.push(line);
+        }
+    }
+    if (ch) addChapter(ch, content.join('\n').trim());
+    
+    if (!state.chapters.length) { alert('Не найдено "## Глава N"'); log('✗ Нет глав'); return; }
+    
+    log('✓ Разбито: ' + state.chapters.length + ' глав');
+    log('✓ Тегов: ' + state.uniqueTags.size);
+    
+    if (state.uniqueTags.size > 0) document.getElementById('rename-btn').style.display = 'block';
+    renderChapters();
+}
+
+function addChapter(title, body) {
+    const tags = [];
+    const tagRe = /^\s*(\[[^\]]+\]:?)\s*/;
+    while (tagRe.test(body)) {
+        const m = body.match(tagRe);
+        const tag = m[1].replace(/:$/, '');
+        tags.push(tag);
+        state.uniqueTags.add(tag);
+        body = body.substring(m[0].length);
+    }
+    body = body.trim();
+    let fullBody = body;
+    if (tags.length) fullBody = tags.map(t => t + ': ').join('') + '\n\n' + body;
+    state.chapters.push({ title: title, body: body, tags: tags, fullBody: fullBody });
+}
+
+function showRenameUI() {
+    const fieldsDiv = document.getElementById('rename-fields');
+    fieldsDiv.innerHTML = '';
+    const tags = Array.from(state.uniqueTags);
+    tags.forEach(tag => {
+        const cleanTag = tag.replace(/[\[\]]/g, '');
+        const label = document.createElement('label');
+        label.textContent = tag + ':';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Новое имя...';
+        input.id = 'rename-' + cleanTag;
+        fieldsDiv.appendChild(label);
+        fieldsDiv.appendChild(input);
+    });
+    document.getElementById('rename-section').classList.add('show');
+}
+
+function applyRenames() {
+    const tags = Array.from(state.uniqueTags);
+    const newNames = {};
+    tags.forEach(tag => {
+        const cleanTag = tag.replace(/[\[\]]/g, '');
+        const input = document.getElementById('rename-' + cleanTag);
+        if (input && input.value.trim()) newNames[tag] = input.value.trim();
+    });
+    
+    if (Object.keys(newNames).length === 0) { alert('Введите хотя бы одно имя!'); return; }
+    
+    state.chapters.forEach(ch => {
+        let body = ch.fullBody;
+        Object.keys(newNames).forEach(oldTag => {
+            const newName = newNames[oldTag];
+            const cleanOldTag = oldTag.replace(/[\[\]]/g, '').replace(/:$/, '');
+            const replacement = '<b>' + newName + ':</b> ';
+            body = body.replace(new RegExp('^\\s*\\[' + cleanOldTag + '\\]:\\s*', 'gm'), replacement);
+            body = body.replace(new RegExp('^\\s*\\[' + cleanOldTag + '\\]\\s+', 'gm'), replacement);
+            body = body.replace(new RegExp('^' + cleanOldTag + ':\\s*', 'gm'), replacement);
+        });
+        ch.fullBody = body;
+        ch.body = body;
+    });
+    
+    renderChapters();
+    log('✓ Теги переименованы');
+}
+
+function formatText() {
+    state.chapters.forEach(ch => {
+        let body = ch.fullBody;
+        let parts = body.split(/(<[^>]*>)/);
+        parts = parts.map((part, idx) => {
+            if (idx % 2 === 1) return part;
+            let text = part;
+            text = text.replace(/\\/g, '');
+            text = text.replace(/_([^_]+)_/g, '$1');
+            text = text.replace(/\/([^/]+)\//g, '$1');
+            text = text.replace(/(\*(?!\*))([^\*]+)\1(?!\*)/g, '$2');
+            text = text.replace(/"([^"]*)"/g, '«$1»');
+            text = text.replace(/(\n|\s)-\s/g, '$1— ');
+            return text;
+        });
+        ch.fullBody = parts.join('');
+        ch.body = ch.fullBody;
+    });
+    renderChapters();
+    log('✓ Отформатировано');
+}
+
+function renderChapters() {
+    const list = document.getElementById('chapters-list');
+    list.innerHTML = '';
+    state.chapters.forEach((ch, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <h3>Глава ${i+1}: ${ch.title}</h3>
+            <div class="btn-group">
+                <button onclick="downloadChapter(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">💾</button>
+                <button onclick="downloadChapterHTML(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">🌐</button>
+                <button onclick="deleteChapter(${i})" style="background: #333; color: #f55; border: 1px solid #f55;">🗑️</button>
+            </div>
+            <textarea id="ch${i}" onchange="state.chapters[${i}].fullBody = this.value; state.chapters[${i}].body = this.value;" style="font-size: 12px; min-height: 80px;">${escapeHtml(ch.fullBody)}</textarea>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function ensureTagFormatting(text) {
+    let processed = text;
+    processed = processed.replace(/^\[([^\]]+)\]:?\s*/gm, '<b>$1:</b> ');
+    return processed;
+}
+
+function formatChapterForHTML(content) {
+    const lines = content.split('\n');
+    let html = '';
+    for (let i = 0; i < lines.length; i++) {
+        // ЖЕСТКАЯ ОЧИСТКА ПРОБЕЛОВ
+        let line = lines[i].replace(/\s+/g, ' ').trim(); 
+        if (!line) continue;
+        
+        const boldMatch = line.match(/^<b>([^<]+)<\/b>\s*(.*)$/);
+        if (boldMatch) {
+            const name = boldMatch[1];
+            const rest = normalizeSpaces(boldMatch[2]);
+            if (rest) html += '<p><strong>' + escapeHtml(name) + '</strong> ' + escapeHtml(rest) + '</p>';
+            else html += '<p><strong>' + escapeHtml(name) + '</strong></p>';
+        } else {
+            const normalized = normalizeSpaces(escapeHtml(line));
+            if (normalized) html += '<p>' + normalized + '</p>';
+        }
+    }
+    return html;
+}
+
+function downloadChapter(i) {
+    const ch = state.chapters[i];
+    let txt = ch.fullBody;
+    txt = ensureTagFormatting(txt);
+    txt = txt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
+    txt = stripHtmlTags(txt);
+    const header = 'Глава ' + (i+1) + ': ' + ch.title + '\n\n';
+    txt = header + txt;
+    const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
+    saveAs(blob, 'Глава_' + (i+1) + '_' + ch.title + '.txt');
+    log('✓ Скачана глава ' + (i+1));
+}
+
+function downloadChapterHTML(i) {
+    const ch = state.chapters[i];
+    let txt = ensureTagFormatting(ch.fullBody);
+    const htmlBody = formatChapterForHTML(txt);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${ch.title}</title><style>body{font-family:Georgia,serif;padding:20px;line-height:1.6;max-width:600px;margin:0 auto}</style></head><body><h2>${ch.title}</h2>${htmlBody}</body></html>`;
+    const blob = new Blob([html], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Глава_' + (i+1) + '_' + ch.title + '.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function deleteChapter(i) {
+    if (confirm('Удалить Глава ' + (i+1) + '?')) {
+        state.chapters.splice(i, 1);
+        renderChapters();
+        log('✓ Удалена глава ' + (i+1));
+    }
+}
+
+function downloadAllZip() {
+    if (!state.chapters.length) { alert('Нет глав!'); return; }
+    const zip = new JSZip();
+    state.chapters.forEach((ch, i) => {
+        let txt = ensureTagFormatting(ch.fullBody);
+        txt = txt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
+        txt = stripHtmlTags(txt);
+        const header = 'Глава ' + (i+1) + ': ' + ch.title + '\n\n';
+        txt = header + txt;
+        zip.file('Глава_' + (i+1) + '_' + ch.title + '.txt', txt);
+    });
+    zip.generateAsync({ type: 'blob' }).then(blob => {
+        saveAs(blob, 'Книга_все_главы.zip');
+        log('✓ ZIP скачан');
+    });
+}
+
+function downloadFullTXT() {
+    if (!state.chapters.length) { alert('Нет глав!'); return; }
+    const title = document.getElementById('book-title').value || 'Книга';
+    const author = document.getElementById('book-author').value || '';
+    const genre = document.getElementById('book-genre').value || '';
+    const date = document.getElementById('book-date').value || '';
+    const desc = document.getElementById('book-desc').value || '';
+    
+    let txt = '=== ' + title.toUpperCase() + ' ===\n';
+    if (author) txt += 'Автор: ' + author + '\n';
+    if (genre) txt += 'Жанр: ' + genre + '\n';
+    if (date) txt += 'Дата: ' + date + '\n';
+    if (desc) txt += '\nОписание:\n' + desc + '\n';
+    txt += '\n' + '='.repeat(60) + '\n\n';
+    
+    for (let i = 0; i < state.chapters.length; i++) {
+        const ch = state.chapters[i];
+        txt += 'ГЛАВА ' + (i+1) + ': ' + ch.title.toUpperCase() + '\n\n';
+        let chapterTxt = ensureTagFormatting(ch.fullBody);
+        chapterTxt = chapterTxt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
+        chapterTxt = stripHtmlTags(chapterTxt);
+        txt += chapterTxt + '\n\n';
+        txt += '-'.repeat(60) + '\n\n';
+    }
+    saveAs(new Blob([txt], { type: 'text/plain; charset=utf-8' }), title + '_полная_книга.txt');
+    log('✓ TXT скачан');
+}
+
+function downloadEPUB() {
+    if (!state.chapters.length) { alert('Нет глав!'); return; }
+    const title = document.getElementById('book-title').value || 'Книга';
+    const author = document.getElementById('book-author').value || 'Автор';
+    const genre = document.getElementById('book-genre').value || '';
+    const desc = document.getElementById('book-desc').value || '';
+    
+    const zip = new JSZip();
+    zip.file('mimetype', 'application/epub+zip');
+    zip.folder('META-INF').file('container.xml', `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+    const oebps = zip.folder('OEBPS');
+    
+    let manifest = '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>';
+    let spine = '';
+    state.chapters.forEach((_, i) => {
+        manifest += `\n<item id="ch${i}" href="ch${i}.xhtml" media-type="application/xhtml+xml"/>`;
+        spine += `\n<itemref idref="ch${i}"/>`;
+    });
+    if (state.cover) {
+        manifest += '\n<item id="cover-image" href="cover.png" media-type="image/png"/>';
+        oebps.file('cover.png', state.cover.split(',')[1], { base64: true });
+    }
+    
+    let opf = `<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uuid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${escapeHtml(title)}</dc:title><dc:creator>${escapeHtml(author)}</dc:creator><dc:subject>${escapeHtml(genre)}</dc:subject><dc:description>${escapeHtml(desc)}</dc:description>`;
+    if (state.cover) opf += `<meta name="cover" content="cover-image"/>`;
+    opf += `</metadata><manifest>${manifest}</manifest><spine toc="ncx">${spine}</spine></package>`;
+    oebps.file('content.opf', opf);
+    
+    let navMap = '';
+    state.chapters.forEach((ch, i) => {
+        navMap += `\n<navPoint id="ch${i}" playOrder="${i+1}"><navLabel><text>${escapeHtml(ch.title)}</text></navLabel><content src="ch${i}.xhtml"/></navPoint>`;
+    });
+    oebps.file('toc.ncx', `<?xml version="1.0"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><navMap>${navMap}</navMap></ncx>`);
+    
+    state.chapters.forEach((ch, i) => {
+        let processedBody = ensureTagFormatting(ch.fullBody);
+        const htmlBody = formatChapterForHTML(processedBody);
+        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(ch.title)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(ch.title)}</h2>${htmlBody}</body></html>`;
+        oebps.file(`ch${i}.xhtml`, xhtml);
+    });
+    
+    zip.generateAsync({ type: 'blob' }).then(blob => {
+        saveAs(blob, title + '.epub');
+        log('✓ EPUB скачан');
+    });
+}
+
+function downloadHTML() {
+    if (!state.chapters.length) { alert('Нет глав!'); return; }
+    
+    const title = document.getElementById('book-title').value || 'Книга';
+    const author = document.getElementById('book-author').value || '';
+    const genre = document.getElementById('book-genre').value || '';
+    const desc = document.getElementById('book-desc').value || '';
+    const date = document.getElementById('book-date').value || '';
+    
+    // Генерация Оглавления
+    let tocHtml = `<div id="toc" class="toc"><h3>Оглавление</h3><ul style="list-style:none;padding:0;">`;
+    let chaptersHtml = '';
+    
+    state.chapters.forEach((ch, i) => {
+        const id = `ch-${i}`;
+        // Ссылка в оглавлении
+        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">Глава ${i+1}: ${escapeHtml(ch.title)}</a></li>`;
+        
+        let processedBody = ensureTagFormatting(ch.fullBody);
+        const htmlBody = formatChapterForHTML(processedBody);
+        
+        // Тело главы с ID и ссылкой возврата
+        chaptersHtml += `
+            <div class="chapter">
+                <h2 id="${id}">Глава ${i+1}: ${ch.title}</h2>
+                ${htmlBody}
+                <div style="margin-top:20px;text-align:right;">
+                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Вернуться к оглавлению</a>
+                </div>
+            </div><hr>`;
+    });
+    tocHtml += `</ul></div>`;
+    
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,serif;background:#f5f5f5;color:#333;padding:15px;line-height:1.8}
+.container{max-width:900px;margin:0 auto;background:white;padding:40px;border-radius:8px;box-shadow:0 2px 15px rgba(0,0,0,0.1)}
+.book-header{text-align:center;border-bottom:2px solid #ddd;padding-bottom:30px;margin-bottom:40px}
+.cover-img{max-width:300px;height:auto;display:block;margin:0 auto 20px;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,0.2)}
+h1{font-size:32px;margin-bottom:10px;color:#222}
+.meta{color:#666;font-style:italic;margin-bottom:20px}
+.desc{background:#f9f9f9;padding:20px;text-align:left;border-radius:6px;color:#555;margin-top:20px}
+.toc{background:#f0f0f0;padding:20px;border-radius:8px;margin-bottom:40px;}
+h2{margin-top:40px;margin-bottom:20px;font-size:24px;color:#444}
+p{margin-bottom:15px;text-align:justify}
+strong{font-weight:bold;color:#000}
+hr{border:0;height:1px;background:#eee;margin:50px 0}
+@media(max-width:768px){.container{padding:20px}h1{font-size:24px}h2{font-size:18px}}
+</style></head><body><div class="container">`;
+
+    html += `<div class="book-header">`;
+    if (state.cover) html += `<img src="${state.cover}" class="cover-img" alt="Обложка">`;
+    html += `<h1>${escapeHtml(title)}</h1>`;
+    html += `<div class="meta">`;
+    if (author) html += `<span>${escapeHtml(author)}</span>`;
+    if (genre) html += ` • <span>${escapeHtml(genre)}</span>`;
+    if (date) html += ` • <span>${escapeHtml(date)}</span>`;
+    html += `</div>`;
+    if (desc) html += `<div class="desc">${escapeHtml(desc)}</div>`;
+    html += `</div>`; 
+
+    // Вставляем Оглавление и Главы
+    html += tocHtml;
+    html += `<div class="content">${chaptersHtml}</div></div></body></html>`;
+    
+    const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = title + '.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    log('✓ HTML скачан');
+}
+
+function clearAll() {
+    if (confirm('Очистить всё?')) {
+        state = { chapters: [], uniqueTags: new Set(), tagMap: {}, cover: null };
+        document.getElementById('text').value = '';
+        document.getElementById('chapters-list').innerHTML = '';
+        document.getElementById('rename-btn').style.display = 'none';
+        log('✓ Очищено');
+    }
+}
+</script>
+
+</body>
+</html>
