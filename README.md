@@ -1,81 +1,60 @@
 # Kimi Book Studio
 
-Конвертируйте ваши диалоги с Perchance AI Character Chat в правильно отформатированные книги (EPUB/TXT/HTML).
+Convert your **Perchance AI Character Chat** dialogues into beautifully formatted books (EPUB, TXT, or HTML) with ease.
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### Попробовать онлайн (без скачивания):
+### Try Online (Recommended):
+* [English Version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
+* [Russian Version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
 
-**Онлайн версии (рекомендуется):**- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
+### Download for Offline Use:
+* [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html) — Right-click → Save As
+* [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html) — Right-click → Save As
 
-  - [Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
+---
 
-### Скачать для оффлайн использования:
+## 📖 How to Use
 
-- [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html) - Правый клик → Сохранить как
-- [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html) - Правый клик → Сохранить как
+1.  **Export your Chat:** Download your chat history from Perchance AI Character Chat (export as text, excluding character settings).
+2.  **Mark your Chapters:** Open your chat file and insert chapter markers using the `##` prefix. 
+    > **Example:**
+    > `## Chapter 1: The Full Moon`
+    > `[AI]: Darkness shrouded the forest...`
+3.  **Load and Split:** Upload your file to Kimi Studio and click **"Split"**. The app will automatically detect the chapters and name tags.
+4.  **Rename Characters:** Click the **"Rename"** button to replace generic tags (like *Narrator, AI, User*) with actual character names.
+5.  **Edit & Batch Save:** In the **"Chapters"** tab, you can edit the text. You can download chapters individually or all at once in a **ZIP archive** with corrected tags.
+6.  **Clean Up:** Use the **"Format"** button to instantly remove unnecessary symbols and artifacts from the entire document.
+7.  **Export:** Go to the **"Export"** tab, fill in the book metadata, and save your work in **EPUB, TXT, or HTML**.
 
-## ✨ Особенности
+---
 
-- Единый HTML файл - работает оффлайн, установка не требуется
-- Экспорт в EPUB, TXT, HTML
-- Поддержка длинных диалогов
-- Мобильный интерфейс
-- Полностью бесплатно и без рекламы
+## ✨ Key Features
+* **Zero Installation:** A single HTML file that works offline.
+* **Smart Detection:** Automatic identification of chapters and speakers.
+* **Batch Processing:** Save all chapters as a structured ZIP file.
+* **Formatting Engine:** One-click "noise" removal for a clean reading experience.
 
-## 📸 Скриншоты
+---
 
-![Screenshot](msedge_FqS7LAHCXM.png)
-![Screenshot](msedge_jsG5O0djMY.png)
+## 📸 Screenshots
 
-## 🎯 Как использовать
+![Screenshot 1](msedge_FqS7LAHCXM.png)
+![Screenshot 2](msedge_jsG5O0djMY.png)
 
-### Шаг 1: Экспортируйте JSON из Perchance AI Chat
+---
 
-1. Откройте ваш чат в [Perchance AI Character Chat](https://perchance.org/ai-character-chat)
-2. Нажмите на **кнопку меню** (☰ три линии) в правом верхнем углу
-3. Выберите **"Download Message History (JSON)"**
-4. Файл с расширением `.json` будет скачан на ваше устройство
+## 💝 Support the Project
 
-### Шаг 2: Загрузите JSON в Kimi Studio
+If you find this tool useful, consider supporting the developer:
 
-1. Откройте [Kimi Studio](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html) в браузере
-2. Нажмите кнопку **"Upload File"** (или **"Load file"**)
-3. Выберите скачанный JSON файл
-4. Или просто скопируйте содержимое JSON файла и вставьте в текстовое поле
+* 🇺🇦 [Support via Monobank](https://send.monobank.ua/jar/2qiYgvFTRG)
 
-### Шаг 3: Настройте параметры
+---
 
-- **Markup** - разметка глав (по умолчанию: `##`)
-- **Chapter** - номер главы
-- **Title** - название главы
-- **Tags** - теги для персонажей (например: `[AI]:` для текста персонажа)
+## 📝 License
+**MIT License** — Use it freely!
 
-### Шаг 4: Экспортируйте книгу
-
-1. Нажмите **"Split"** - чтобы разделить текст по главам
-2. Нажмите **"Format"** - чтобы отформатировать текст
-3. Нажмите **"Export"** - выберите формат (EPUB/TXT/HTML)
-4. Ваша книга готова для чтения на любом устройстве!
-
-**Дополнительные функции:**
-- **ZIP** - создать архив со всеми главами
-- **Clear All** - очистить всё и начать заново
-
-## 💝 Поддержать проект
-
-Если вам нравится этот проект и вы хотите поддержать его развитие:
-
-- ☕ [Buy Me a Coffee](https://www.buymeacoffee.com/roflsockie)
-- 💳 [Donationalerts](https://www.donationalerts.com/r/roflsockie)
-
-Ваша поддержка помогает мне продолжать разработку и добавлять новые функции!
-
-## 📝 Лицензия
-
-MIT License - используйте свободно!
-
-## 🔗 Ссылки
-
-- [Perchance AI Chat](https://perchance.org/ai-character-chat)
-- [Сообщить об ошибке](https://github.com/Roflsockie/Kimi-Studio/issues)
+## 🔗 Links
+* [Perchance AI Chat](https://perchance.org/ai-character-chat)
+* [Report a Bug](https://github.com/Roflsockie/Kimi-Studio/issues)
