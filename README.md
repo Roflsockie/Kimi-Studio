@@ -6,11 +6,7 @@
 
 ### Попробовать онлайн (без скачивания):
 
-**Perchance версия (рекомендуется):**
-- [Kimi Book Studio на Perchance](https://perchance.org/wmf11xla4b)
-
-**GitHub Pages версии:**
-- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
+**Онлайн версии (рекомендуется):**- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
 - [Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
 
 ### Скачать для оффлайн использования:
