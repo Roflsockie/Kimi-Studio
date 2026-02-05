@@ -1,44 +1,58 @@
-# Kimi Studio
+# Kimi Book Studio
 
-Convert your Perchance AI Character Chat conversations into properly formatted books (EPUB/TXT/HTML).
+Конвертируйте ваши диалоги с Perchance AI Character Chat в правильно отформатированные книги (EPUB/TXT/HTML).
 
-## 🚀 Quick Start
+## 🚀 Быстрый старт
 
-**Try online (no download needed):**
-- [🇬🇧 English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
-- [🇷🇺 Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
+### Попробовать онлайн (без скачивания):
 
-**Or download for offline use:**
-- [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html) - Right click → Save as
-- [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html) - Right click → Save as
+**Perchance версия (рекомендуется):**
+- [Kimi Book Studio на Perchance](https://perchance.org/wmf11xla4b)
 
-## ✨ Features
+**GitHub Pages версии:**
+- [English version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
+- [Russian version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-RU.html)
 
-- Single HTML file - works offline, no installation needed
-- Export to EPUB, TXT, HTML
-- Supports long dialogues
-- Mobile-friendly interface
+### Скачать для оффлайн использования:
 
-## 📸 Screenshots
+- [Kimi-Studio-EN.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-EN.html) - Правый клик → Сохранить как
+- [Kimi-Studio-RU.html](https://raw.githubusercontent.com/Roflsockie/Kimi-Studio/main/Kimi-Studio-RU.html) - Правый клик → Сохранить как
 
-![Screenshot](msedge_Eq57LAHCXM.png)
+## ✨ Особенности
+
+- Единый HTML файл - работает оффлайн, установка не требуется
+- Экспорт в EPUB, TXT, HTML
+- Поддержка длинных диалогов
+- Мобильный интерфейс
+- Полностью бесплатно и без рекламы
+
+## 📸 Скриншоты
+
+![Screenshot](msedge_FqS7LAHCXM.png)
 ![Screenshot](msedge_jsG5O0djMY.png)
 
-## 🚀 How to Use
+## 🎯 Как использовать
 
-### Steps:
+1. Откройте приложение в браузере
+2. Вставьте ваш JSON из Perchance AI Chat
+3. Настройте параметры (название книги, имена персонажей)
+4. Нажмите кнопку экспорта
+5. Скачайте вашу книгу в нужном формате
 
-1. **Prepare your chat** in Perchance AI:
-   - Have your conversation ready
-   
-2. **Open Kimi Studio**
+## 💝 Поддержать проект
 
-3. **Paste your chat**
+Если вам нравится этот проект и вы хотите поддержать его развитие:
 
-4. **Export** to your preferred format
+- ☕ [Buy Me a Coffee](https://www.buymeacoffee.com/roflsockie)
+- 💳 [Donationalerts](https://www.donationalerts.com/r/roflsockie)
 
-## 💖 Support
+Ваша поддержка помогает мне продолжать разработку и добавлять новые функции!
 
-If you find this useful, consider supporting development:
+## 📝 Лицензия
 
-☕ **[Support via Monobank](https://send.monobank.ua/jar/2qiYgvFTRG)**
+МIT License - используйте свободно!
+
+## 🔗 Ссылки
+
+- [Perchance AI Chat](https://perchance.org/ai-character-chat)
+- [Сообщить об ошибке](https://github.com/Roflsockie/Kimi-Studio/issues)
