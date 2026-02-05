@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a0a">
@@ -166,12 +165,12 @@
 <div class="app">
     <div class="app-header">
         <h1>📖 Kimi Studio</h1>
-        <p>lang="en"Book text editor</p>
+        <p>Book text editor</p>
     </div>
 
     <div class="app-content">
         <div id="import" class="tab-pane active">
-            <button class="secondary" onclick="clearLog()">🗑️ Очистить лог</button>
+            <button class="secondary" onclick="clearLog()">🗑️ Clear log</button>
             <div class="log-box" id="log"></div>
 
             <div class="info-block">
@@ -179,17 +178,17 @@
                 Теги: <code>[AI]: текст</code>
             </div>
 
-            <label class="file-btn" for="file">📁 Загрузить файл</label>
+            <label class="file-btn" for="file">📁 Load file</label>
             <input type="file" id="file" accept=".txt,.json,.html,.md">
 
-            <textarea id="text" placeholder="Или вставьте текст здесь..."></textarea>
+            <textarea id="text" placeholder="Or paste text here..."></textarea>
 
-            <button class="primary" onclick="processText()">✂️ Разбить</button>
+            <button class="primary" onclick="processText()">✂️ Split</button>
             <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Имена</button>
-            <button class="primary" onclick="formatText()">✨ Форматировать</button>
+            <button class="primary" onclick="formatText()">✨ Format</button>
             <button class="secondary" onclick="downloadAllZip()">📦 ZIP</button>
-            <button class="success" onclick="showTab('export')">📤 Экспорт</button>
-            <button class="secondary" onclick="clearAll()">⚠️ Очистить всё</button>
+            <button class="success" onclick="showTab('export')">📤 Export</button>
+            <button class="secondary" onclick="clearAll()">⚠️ Clear All</button>
         </div>
 
         <div id="chapters" class="tab-pane">
@@ -208,11 +207,11 @@
                 </div>
 
                 <div style="width: 100%;">
-                    <input type="text" id="book-title" placeholder="📖 Название книги">
-                    <input type="text" id="book-author" placeholder="✍️ Автор">
-                    <input type="text" id="book-genre" placeholder="🎭 Жанр (например: Фантастика)">
-                    <input type="text" id="book-date" placeholder="📅 Дата написания">
-                    <textarea id="book-desc" placeholder="📝 Описание книги..." style="min-height: 80px;"></textarea>
+                    <input type="text" id="book-title" placeholder="📖 Book title">
+                    <input type="text" id="book-author" placeholder="✍️ Author">
+                    <input type="text" id="book-genre" placeholder="🎭 Genre (например: Фантастика)">
+                    <input type="text" id="book-date" placeholder="📅 Date">
+                    <textarea id="book-desc" placeholder="📝 Description..." style="min-height: 80px;"></textarea>
                 </div>
             </div>
 
@@ -225,18 +224,18 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('import')">📥 Импорт</button>
-        <button class="tab-btn" onclick="showTab('chapters')">📚 Главы</button>
-        <button class="tab-btn" onclick="showTab('export')">📤 Экспорт</button>
+        <button class="tab-btn active" onclick="showTab('import')">📥 Import</button>
+        <button class="tab-btn" onclick="showTab('chapters')">📚 Chapters</button>
+        <button class="tab-btn" onclick="showTab('export')">📤 Export</button>
     </div>
 </div>
 
 <div id="rename-section">
     <div class="modal-content">
-        <h3>Переименовать персонажей</h3>
+        <h3>Rename characters</h3>
         <div id="rename-fields" class="rename-grid"></div>
-        <button class="primary" onclick="applyRenames(); closeModal()">✓ Применить</button>
-        <button class="secondary" onclick="closeModal()">Отмена</button>
+        <button class="primary" onclick="applyRenames(); closeModal()">✓ Apply</button>
+        <button class="secondary" onclick="closeModal()">Cancel</button>
     </div>
 </div>
 
@@ -551,10 +550,10 @@ function downloadFullTXT() {
     const desc = document.getElementById('book-desc').value || '';
     
     let txt = '=== ' + title.toUpperCase() + ' ===\n';
-    if (author) txt += 'Автор: ' + author + '\n';
-    if (genre) txt += 'Жанр: ' + genre + '\n';
-    if (date) txt += 'Дата: ' + date + '\n';
-    if (desc) txt += '\nОписание:\n' + desc + '\n';
+    if (author) txt += 'Author: ' + author + '\n';
+    if (genre) txt += 'Genre: ' + genre + '\n';
+    if (date) txt += 'Date: ' + date + '\n';
+    if (desc) txt += '\nDescription:\n' + desc + '\n';
     txt += '\n' + '='.repeat(60) + '\n\n';
     
     for (let i = 0; i < state.chapters.length; i++) {
