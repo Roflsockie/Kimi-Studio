@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>📖 Kimi Book Studio</title>
+    <!-- Библиотеки -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -23,10 +24,8 @@
             position: relative;
         }
 
-        /* SAFE AREA для iPhone с notch */
         body { padding-top: max(12px, env(safe-area-inset-top)); }
 
-        /* КОНТЕЙНЕР ПРИЛОЖЕНИЯ */
         .app { display: flex; flex-direction: column; min-height: 100vh; }
         .app-header { 
             background: linear-gradient(135deg, #0dd 0%, #09a 100%);
@@ -34,264 +33,120 @@
             padding: 16px 16px max(16px, env(safe-area-inset-bottom));
             text-align: center;
             box-shadow: 0 2px 8px rgba(0, 221, 221, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
         .app-header h1 { font-size: 24px; font-weight: 600; }
         .app-header p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
 
         .app-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* ВКЛАДКИ (BOTTOM NAVIGATION STYLE) */
+        /* TABS */
         .tabs { 
-            display: flex; 
-            gap: 0;
-            background: #1a1a1a;
-            border-top: 1px solid #333;
-            position: sticky;
-            bottom: 0;
-            z-index: 50;
+            display: flex; gap: 0; background: #1a1a1a;
+            border-top: 1px solid #333; position: sticky; bottom: 0; z-index: 50;
         }
         .tab-btn { 
-            flex: 1;
-            background: none;
-            border: none;
-            color: #666;
-            padding: 12px 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
-            -webkit-user-select: none;
+            flex: 1; background: none; border: none; color: #666; padding: 12px 8px;
+            cursor: pointer; font-weight: 600; font-size: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            border-bottom: 3px solid transparent; transition: all 0.2s;
         }
-        .tab-btn.active { 
-            color: #0dd;
-            border-bottom-color: #0dd;
-        }
+        .tab-btn.active { color: #0dd; border-bottom-color: #0dd; }
         .tab-btn:active { background: rgba(0, 221, 221, 0.1); }
 
-        /* СОДЕРЖИМОЕ ВКЛАДОК */
-        .tab-content { 
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 16px;
-            padding-bottom: 80px;
-        }
+        .tab-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; padding-bottom: 80px; }
         .tab-pane { display: none; }
-        .tab-pane.active { display: block; }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* КНОПКИ - MATERIAL DESIGN */
+        /* BUTTONS */
         button {
-            width: 100%;
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; padding: 14px 16px; margin-bottom: 8px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            -webkit-user-select: none;
-            user-select: none;
         }
         button:active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        button.primary {
-            background: linear-gradient(135deg, #0dd 0%, #09a 100%);
-            color: #000;
-        }
+        button.primary { background: linear-gradient(135deg, #0dd 0%, #09a 100%); color: #000; }
         button.secondary { background: #555; color: #fff; }
         button.success { background: linear-gradient(135deg, #0a0 0%, #080 100%); color: #fff; }
         button.danger { background: linear-gradient(135deg, #f55 0%, #d33 100%); color: #fff; }
         button.info { background: linear-gradient(135deg, #15f 0%, #13d 100%); color: #fff; }
 
-        /* ИНПУТЫ И TEXTAREA */
+        /* INPUTS */
         input[type="text"], textarea, select {
-            width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 16px;
-            font-family: inherit;
-            transition: border-color 0.2s;
+            width: 100%; padding: 12px 14px; margin-bottom: 12px; background: #1a1a1a;
+            border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 16px;
+            font-family: inherit; transition: border-color 0.2s;
         }
-        input[type="text"]:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: #0dd;
-            box-shadow: 0 0 0 3px rgba(0, 221, 221, 0.1);
-        }
+        input[type="text"]:focus, textarea:focus { outline: none; border-color: #0dd; box-shadow: 0 0 0 3px rgba(0, 221, 221, 0.1); }
+        textarea { resize: vertical; min-height: 120px; font-family: 'Courier New', monospace; }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* ФАЙЛ ЗАГРУЗКА */
+        /* FILE INPUT */
         input[type="file"] { display: none; }
         .file-btn {
-            display: block;
-            padding: 16px;
-            background: #1a1a1a;
-            border: 2px dashed #0dd;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 12px;
-            color: #0dd;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s;
+            display: block; padding: 16px; background: #1a1a1a; border: 2px dashed #0dd;
+            border-radius: 8px; text-align: center; cursor: pointer; margin-bottom: 12px;
+            color: #0dd; font-weight: 600; font-size: 14px; transition: all 0.2s;
         }
         .file-btn:active { background: rgba(0, 221, 221, 0.1); }
 
-        /* КАРТОЧКИ */
+        /* CARDS */
         .card {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            background: #1a1a1a; border: 1px solid #333; border-radius: 12px;
+            padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
         .card h3 { color: #0dd; font-size: 14px; margin-bottom: 10px; }
 
-        /* ЛОГ БОК */
+        /* LOG */
         .log-box {
-            background: #000;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 12px;
-            max-height: 100px;
-            overflow-y: auto;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 12px;
-            line-height: 1.4;
+            background: #000; border: 1px solid #333; border-radius: 8px; padding: 10px;
+            font-size: 12px; max-height: 100px; overflow-y: auto; color: #0f0;
+            font-family: 'Courier New', monospace; margin-bottom: 12px; line-height: 1.4;
         }
 
-        /* ИНФОРМАЦИОННЫЙ БЛОК */
         .info-block {
-            background: rgba(0, 221, 221, 0.1);
-            border-left: 3px solid #0dd;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 12px;
-            line-height: 1.5;
+            background: rgba(0, 221, 221, 0.1); border-left: 3px solid #0dd;
+            padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px;
         }
 
-        /* КНОПКИ ГРУППА */
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .btn-group button {
-            padding: 10px 8px;
-            font-size: 11px;
-            margin-bottom: 0;
-            background: #333;
-            color: #0dd;
-            border: 1px solid #0dd;
-        }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .btn-group button { padding: 10px 8px; font-size: 11px; margin-bottom: 0; background: #333; color: #0dd; border: 1px solid #0dd; }
 
-        /* ПОЛЯ ПЕРЕИМЕНОВАНИЯ */
-        .rename-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .rename-grid label {
-            font-size: 12px;
-            color: #999;
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-        .rename-grid input {
-            margin-bottom: 8px;
-            padding: 10px 12px;
-            font-size: 14px;
-        }
+        .rename-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .rename-grid label { font-size: 12px; color: #999; display: block; margin-bottom: 4px; font-weight: 600; }
+        .rename-grid input { margin-bottom: 8px; padding: 10px 12px; font-size: 14px; }
 
-        /* СПИСОК ГЛАВ */
-        .chapters-list { display: flex; flex-direction: column; gap: 12px; }
-
-        /* ИЗОБРАЖЕНИЕ ОБЛОЖКИ */
         #cover-preview {
-            max-width: 100%;
-            height: auto;
-            max-height: 200px;
-            border-radius: 8px;
-            display: block;
-            margin: 0 auto 12px;
+            max-width: 140px; height: auto; max-height: 200px; border-radius: 8px;
+            display: block; margin: 0 auto 12px; border: 1px solid #333; object-fit: cover;
         }
 
-        /* МОДАЛЬНОЕ ОКНО (переименование) */
+        /* MODAL */
         #rename-section {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            justify-content: flex-end;
-            animation: slideUp 0.3s ease-out;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8); z-index: 200; display: none;
+            flex-direction: column; justify-content: flex-end; animation: slideUp 0.3s ease-out;
         }
         #rename-section.show { display: flex; }
-
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .modal-content {
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 16px 16px 0 0;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
+            background: #1a1a1a; padding: 20px; border-radius: 16px 16px 0 0;
+            max-height: 80vh; overflow-y: auto; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5);
         }
         .modal-content h3 { color: #0dd; margin-bottom: 16px; font-size: 16px; }
 
-        /* СКРОЛЛ СТИЛЬ */
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-        /* ТЕКСТ */
-        h2 { color: #0dd; font-size: 16px; margin: 12px 0 8px 0; font-weight: 600; }
-        code { background: #222; padding: 2px 6px; border-radius: 4px; color: #0f0; font-size: 12px; }
-
-        /* ЧЕКПОИНТЫ ШИРИНЫ */
+        /* MEDIA QUERIES */
         @media (min-width: 768px) {
             body { font-size: 14px; }
             .tab-content { padding: 24px; padding-bottom: 120px; }
             .btn-group { grid-template-columns: 1fr 1fr; }
-            button { padding: 12px 16px; }
+            .export-grid { display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: start; }
         }
-
         @media (min-width: 1024px) {
             .app { flex-direction: row; }
             .app-header { writing-mode: vertical-rl; text-orientation: mixed; padding: 16px 12px; min-width: 200px; }
@@ -300,12 +155,9 @@
             .tab-btn.active { border-right-color: #0dd; }
             .app-content { margin-left: 0; }
         }
-
-        /* СКРЫВАТЬ ЭЛЕМЕНТЫ НА МОБИЛЬНЫХ */
         @media (max-width: 480px) {
             .rename-grid { grid-template-columns: 1fr; }
-            button { font-size: 13px; padding: 12px 14px; }
-            .app-header h1 { font-size: 20px; }
+            .export-grid { display: flex; flex-direction: column; }
         }
     </style>
 </head>
@@ -348,17 +200,27 @@
         <div id="export" class="tab-pane">
             <h2>📤 Экспорт</h2>
             
-            <input type="text" id="book-title" placeholder="📖 Название">
-            <input type="text" id="book-author" placeholder="✍️ Автор">
-            <input type="text" id="book-date" placeholder="📅 Дата">
-            
-            <label class="file-btn" for="cover">🖼️ Постер</label>
-            <input type="file" id="cover" accept="image/*">
-            <img id="cover-preview" style="display: none;">
+            <div class="export-grid">
+                <div style="text-align: center;">
+                    <img id="cover-preview" style="display: none;" alt="Постер">
+                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Постер</label>
+                    <input type="file" id="cover" accept="image/*">
+                </div>
 
-            <button class="danger" onclick="downloadFullTXT()">📝 TXT</button>
-            <button class="danger" onclick="downloadEPUB()">⬇️ EPUB</button>
-            <button class="info" onclick="downloadHTML()">🌐 HTML</button>
+                <div style="width: 100%;">
+                    <input type="text" id="book-title" placeholder="📖 Название книги">
+                    <input type="text" id="book-author" placeholder="✍️ Автор">
+                    <input type="text" id="book-genre" placeholder="🎭 Жанр (например: Фантастика)">
+                    <input type="text" id="book-date" placeholder="📅 Дата написания">
+                    <textarea id="book-desc" placeholder="📝 Описание книги..." style="min-height: 80px;"></textarea>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="danger" onclick="downloadFullTXT()">📝 TXT (Вся книга)</button>
+                <button class="danger" onclick="downloadEPUB()">⬇️ EPUB (Электронная книга)</button>
+                <button class="info" onclick="downloadHTML()">🌐 HTML (Веб-книга с навигацией)</button>
+            </div>
         </div>
     </div>
 
@@ -369,7 +231,6 @@
     </div>
 </div>
 
-<!-- МОДАЛЬНОЕ ОКНО ПЕРЕИМЕНОВАНИЯ -->
 <div id="rename-section">
     <div class="modal-content">
         <h3>Переименовать персонажей</h3>
@@ -528,7 +389,6 @@ function showRenameUI() {
         fieldsDiv.appendChild(input);
     });
     document.getElementById('rename-section').classList.add('show');
-    log('Введите имена персонажей');
 }
 
 function applyRenames() {
@@ -601,40 +461,20 @@ function renderChapters() {
     });
 }
 
-function downloadChapter(i) {
-    const ch = state.chapters[i];
-    let txt = ch.fullBody;
-    txt = txt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
-    txt = stripHtmlTags(txt);
-    const header = 'Глава ' + (i+1) + ': ' + ch.title + '\n\n';
-    txt = header + txt;
-    const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
-    saveAs(blob, 'Глава_' + (i+1) + '_' + ch.title + '.txt');
-    log('✓ Скачана глава ' + (i+1));
-}
-
-function downloadChapterHTML(i) {
-    const ch = state.chapters[i];
-    const htmlBody = formatChapterForHTML(ch.fullBody);
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${ch.title}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Georgia,serif;background:#f5f5f5;color:#333;padding:15px;font-size:16px;line-height:1.8}.container{max-width:600px;margin:0 auto;background:white;padding:25px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}h1{font-size:24px;text-align:center;margin-bottom:5px}h2{font-size:20px;color:#333;margin:20px 0 10px 0}p{margin:15px 0;text-align:left;word-wrap:break-word}strong{font-weight:bold;color:#000}@media(max-width:600px){body{padding:10px}.container{padding:15px}h1{font-size:18px}p{font-size:14px}}</style></head><body><div class="container"><h2>${ch.title}</h2>${htmlBody}</div></body></html>`;
-    const blob = new Blob([html], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Глава_' + (i+1) + '_' + ch.title + '.html';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    log('✓ HTML скачан');
+function ensureTagFormatting(text) {
+    let processed = text;
+    processed = processed.replace(/^\[([^\]]+)\]:?\s*/gm, '<b>$1:</b> ');
+    return processed;
 }
 
 function formatChapterForHTML(content) {
     const lines = content.split('\n');
     let html = '';
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+        // ЖЕСТКАЯ ОЧИСТКА ПРОБЕЛОВ
+        let line = lines[i].replace(/\s+/g, ' ').trim(); 
         if (!line) continue;
+        
         const boldMatch = line.match(/^<b>([^<]+)<\/b>\s*(.*)$/);
         if (boldMatch) {
             const name = boldMatch[1];
@@ -649,6 +489,34 @@ function formatChapterForHTML(content) {
     return html;
 }
 
+function downloadChapter(i) {
+    const ch = state.chapters[i];
+    let txt = ch.fullBody;
+    txt = ensureTagFormatting(txt);
+    txt = txt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
+    txt = stripHtmlTags(txt);
+    const header = 'Глава ' + (i+1) + ': ' + ch.title + '\n\n';
+    txt = header + txt;
+    const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
+    saveAs(blob, 'Глава_' + (i+1) + '_' + ch.title + '.txt');
+    log('✓ Скачана глава ' + (i+1));
+}
+
+function downloadChapterHTML(i) {
+    const ch = state.chapters[i];
+    let txt = ensureTagFormatting(ch.fullBody);
+    const htmlBody = formatChapterForHTML(txt);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${ch.title}</title><style>body{font-family:Georgia,serif;padding:20px;line-height:1.6;max-width:600px;margin:0 auto}</style></head><body><h2>${ch.title}</h2>${htmlBody}</body></html>`;
+    const blob = new Blob([html], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'Глава_' + (i+1) + '_' + ch.title + '.html';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 function deleteChapter(i) {
     if (confirm('Удалить Глава ' + (i+1) + '?')) {
         state.chapters.splice(i, 1);
@@ -661,7 +529,7 @@ function downloadAllZip() {
     if (!state.chapters.length) { alert('Нет глав!'); return; }
     const zip = new JSZip();
     state.chapters.forEach((ch, i) => {
-        let txt = ch.fullBody;
+        let txt = ensureTagFormatting(ch.fullBody);
         txt = txt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
         txt = stripHtmlTags(txt);
         const header = 'Глава ' + (i+1) + ': ' + ch.title + '\n\n';
@@ -678,55 +546,71 @@ function downloadFullTXT() {
     if (!state.chapters.length) { alert('Нет глав!'); return; }
     const title = document.getElementById('book-title').value || 'Книга';
     const author = document.getElementById('book-author').value || '';
+    const genre = document.getElementById('book-genre').value || '';
     const date = document.getElementById('book-date').value || '';
-    let txt = '';
-    txt += title.toUpperCase() + '\n';
+    const desc = document.getElementById('book-desc').value || '';
+    
+    let txt = '=== ' + title.toUpperCase() + ' ===\n';
     if (author) txt += 'Автор: ' + author + '\n';
+    if (genre) txt += 'Жанр: ' + genre + '\n';
     if (date) txt += 'Дата: ' + date + '\n';
+    if (desc) txt += '\nОписание:\n' + desc + '\n';
     txt += '\n' + '='.repeat(60) + '\n\n';
-    state.chapters.forEach((ch, i) => {
+    
+    for (let i = 0; i < state.chapters.length; i++) {
+        const ch = state.chapters[i];
         txt += 'ГЛАВА ' + (i+1) + ': ' + ch.title.toUpperCase() + '\n\n';
-        let chapterTxt = ch.fullBody;
+        let chapterTxt = ensureTagFormatting(ch.fullBody);
         chapterTxt = chapterTxt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
         chapterTxt = stripHtmlTags(chapterTxt);
         txt += chapterTxt + '\n\n';
         txt += '-'.repeat(60) + '\n\n';
-    });
-    const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
-    saveAs(blob, title + '_полная_книга.txt');
+    }
+    saveAs(new Blob([txt], { type: 'text/plain; charset=utf-8' }), title + '_полная_книга.txt');
     log('✓ TXT скачан');
 }
 
 function downloadEPUB() {
     if (!state.chapters.length) { alert('Нет глав!'); return; }
+    const title = document.getElementById('book-title').value || 'Книга';
+    const author = document.getElementById('book-author').value || 'Автор';
+    const genre = document.getElementById('book-genre').value || '';
+    const desc = document.getElementById('book-desc').value || '';
+    
     const zip = new JSZip();
     zip.file('mimetype', 'application/epub+zip');
-    const meta = zip.folder('META-INF');
-    meta.file('container.xml', `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
+    zip.folder('META-INF').file('container.xml', `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
     const oebps = zip.folder('OEBPS');
+    
     let manifest = '<item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>';
     let spine = '';
     state.chapters.forEach((_, i) => {
         manifest += `\n<item id="ch${i}" href="ch${i}.xhtml" media-type="application/xhtml+xml"/>`;
         spine += `\n<itemref idref="ch${i}"/>`;
     });
-    const title = document.getElementById('book-title').value || 'Книга';
-    const author = document.getElementById('book-author').value || 'Автор';
     if (state.cover) {
         manifest += '\n<item id="cover-image" href="cover.png" media-type="image/png"/>';
         oebps.file('cover.png', state.cover.split(',')[1], { base64: true });
     }
-    oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uuid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${title}</dc:title><dc:creator>${author}</dc:creator></metadata><manifest>${manifest}</manifest><spine toc="ncx">${spine}</spine></package>`);
+    
+    let opf = `<?xml version="1.0" encoding="UTF-8"?><package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="uuid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${escapeHtml(title)}</dc:title><dc:creator>${escapeHtml(author)}</dc:creator><dc:subject>${escapeHtml(genre)}</dc:subject><dc:description>${escapeHtml(desc)}</dc:description>`;
+    if (state.cover) opf += `<meta name="cover" content="cover-image"/>`;
+    opf += `</metadata><manifest>${manifest}</manifest><spine toc="ncx">${spine}</spine></package>`;
+    oebps.file('content.opf', opf);
+    
     let navMap = '';
     state.chapters.forEach((ch, i) => {
-        navMap += `\n<navPoint id="ch${i}" playOrder="${i+1}"><navLabel><text>${ch.title}</text></navLabel><content src="ch${i}.xhtml"/></navPoint>`;
+        navMap += `\n<navPoint id="ch${i}" playOrder="${i+1}"><navLabel><text>${escapeHtml(ch.title)}</text></navLabel><content src="ch${i}.xhtml"/></navPoint>`;
     });
     oebps.file('toc.ncx', `<?xml version="1.0"?><ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1"><navMap>${navMap}</navMap></ncx>`);
+    
     state.chapters.forEach((ch, i) => {
-        const htmlBody = formatChapterForHTML(ch.fullBody);
-        const xhtml = `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${ch.title}</title><style>p{margin-bottom:1em;line-height:1.8}strong{font-weight:bold}</style></head><body><h2>${ch.title}</h2>${htmlBody}</body></html>`;
+        let processedBody = ensureTagFormatting(ch.fullBody);
+        const htmlBody = formatChapterForHTML(processedBody);
+        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(ch.title)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(ch.title)}</h2>${htmlBody}</body></html>`;
         oebps.file(`ch${i}.xhtml`, xhtml);
     });
+    
     zip.generateAsync({ type: 'blob' }).then(blob => {
         saveAs(blob, title + '.epub');
         log('✓ EPUB скачан');
@@ -735,31 +619,70 @@ function downloadEPUB() {
 
 function downloadHTML() {
     if (!state.chapters.length) { alert('Нет глав!'); return; }
+    
     const title = document.getElementById('book-title').value || 'Книга';
     const author = document.getElementById('book-author').value || '';
+    const genre = document.getElementById('book-genre').value || '';
+    const desc = document.getElementById('book-desc').value || '';
+    const date = document.getElementById('book-date').value || '';
+    
+    // Генерация Оглавления
+    let tocHtml = `<div id="toc" class="toc"><h3>Оглавление</h3><ul style="list-style:none;padding:0;">`;
     let chaptersHtml = '';
-    state.chapters.forEach(ch => {
-        const htmlBody = formatChapterForHTML(ch.fullBody);
-        chaptersHtml += `<h2>${ch.title}</h2>${htmlBody}`;
+    
+    state.chapters.forEach((ch, i) => {
+        const id = `ch-${i}`;
+        // Ссылка в оглавлении
+        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">Глава ${i+1}: ${escapeHtml(ch.title)}</a></li>`;
+        
+        let processedBody = ensureTagFormatting(ch.fullBody);
+        const htmlBody = formatChapterForHTML(processedBody);
+        
+        // Тело главы с ID и ссылкой возврата
+        chaptersHtml += `
+            <div class="chapter">
+                <h2 id="${id}">Глава ${i+1}: ${ch.title}</h2>
+                ${htmlBody}
+                <div style="margin-top:20px;text-align:right;">
+                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Вернуться к оглавлению</a>
+                </div>
+            </div><hr>`;
     });
-    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Georgia,serif;background:#f5f5f5;color:#333;padding:15px}
+    tocHtml += `</ul></div>`;
+    
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,serif;background:#f5f5f5;color:#333;padding:15px;line-height:1.8}
 .container{max-width:900px;margin:0 auto;background:white;padding:40px;border-radius:8px;box-shadow:0 2px 15px rgba(0,0,0,0.1)}
-h1{text-align:center;font-size:32px;margin-bottom:20px}
-.metadata{text-align:center;border-bottom:2px solid #ddd;padding-bottom:20px;margin-bottom:30px}
-.author{font-size:18px;color:#666;margin-bottom:10px}
-.date{font-size:14px;color:#999}
-h2{margin-top:40px;margin-bottom:20px;border-bottom:1px solid #ddd;padding-bottom:10px;font-size:24px}
-p{margin-bottom:15px;font-size:16px;line-height:1.8;text-align:left}
+.book-header{text-align:center;border-bottom:2px solid #ddd;padding-bottom:30px;margin-bottom:40px}
+.cover-img{max-width:300px;height:auto;display:block;margin:0 auto 20px;border-radius:4px;box-shadow:0 4px 10px rgba(0,0,0,0.2)}
+h1{font-size:32px;margin-bottom:10px;color:#222}
+.meta{color:#666;font-style:italic;margin-bottom:20px}
+.desc{background:#f9f9f9;padding:20px;text-align:left;border-radius:6px;color:#555;margin-top:20px}
+.toc{background:#f0f0f0;padding:20px;border-radius:8px;margin-bottom:40px;}
+h2{margin-top:40px;margin-bottom:20px;font-size:24px;color:#444}
+p{margin-bottom:15px;text-align:justify}
 strong{font-weight:bold;color:#000}
-img{max-width:300px;height:auto;display:block;margin:20px auto;border-radius:4px}
-@media(max-width:768px){.container{padding:20px}h1{font-size:24px}h2{font-size:18px}p{font-size:14px}}</style></head><body><div class="container">`;
-    if (state.cover) html += `<img src="${state.cover}" alt="Обложка">`;
-    html += `<h1>${title}</h1><div class="metadata">`;
-    if (author) html += `<div class="author">${author}</div>`;
-    const date = document.getElementById('book-date').value;
-    if (date) html += `<div class="date">${date}</div>`;
-    html += `</div><div class="content">${chaptersHtml}</div></div></body></html>`;
-    const blob = new Blob([html], { type: 'application/octet-stream' });
+hr{border:0;height:1px;background:#eee;margin:50px 0}
+@media(max-width:768px){.container{padding:20px}h1{font-size:24px}h2{font-size:18px}}
+</style></head><body><div class="container">`;
+
+    html += `<div class="book-header">`;
+    if (state.cover) html += `<img src="${state.cover}" class="cover-img" alt="Обложка">`;
+    html += `<h1>${escapeHtml(title)}</h1>`;
+    html += `<div class="meta">`;
+    if (author) html += `<span>${escapeHtml(author)}</span>`;
+    if (genre) html += ` • <span>${escapeHtml(genre)}</span>`;
+    if (date) html += ` • <span>${escapeHtml(date)}</span>`;
+    html += `</div>`;
+    if (desc) html += `<div class="desc">${escapeHtml(desc)}</div>`;
+    html += `</div>`; 
+
+    // Вставляем Оглавление и Главы
+    html += tocHtml;
+    html += `<div class="content">${chaptersHtml}</div></div></body></html>`;
+    
+    const blob = new Blob([html], { type: 'text/html; charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
