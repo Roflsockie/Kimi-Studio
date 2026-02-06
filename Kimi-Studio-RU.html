@@ -176,7 +176,7 @@
             <div class="log-box" id="log"></div>
 
             <div class="info-block">
-                💡 Разметка: <code>## Глава 1 Название</code><br>
+                💡 Разметка: <code>## Глава 1</code> или <code>## Chapter 1</code><br>
                 Теги: <code>[AI]: текст</code>
             </div>
 
@@ -320,42 +320,104 @@ document.getElementById('cover').addEventListener('change', e => {
 });
 
 function processText() {
-    const raw = document.getElementById('text').value.trim();
-    if (!raw) { alert('Введите текст!'); return; }
+    const raw = document.getElementById('text').value;
+    if (!raw.trim()) { 
+        alert('Введите текст!'); 
+        return; 
+    }
     
     state.chapters = [];
     state.uniqueTags = new Set();
-    state.tagMap = {};
     
+    // Разбиваем текст на строки
     let lines = raw.split('\n');
-    let ch = null, content = [];
-    
+    let chTitle = null;
+    let chContent = [];
+
+    // УЛУЧШЕННОЕ регулярное выражение для поиска глав
+    // Находит: ## Глава 1, ## Chapter 1: Начало, [AI]: ## Глава 1, ## Пролог и т.д.
+    const chapterRegex = /^(.*)##\s+(.+)$/i;
+
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        let tagPrefix = '';
-        if (/^\[.*\]:?\s*##\s+Глава/i.test(line)) {
-            const tagMatch = line.match(/^(\[.*?\]:?)\s*(##\s+Глава.*)/i);
-            if (tagMatch) { tagPrefix = tagMatch[1]; line = tagMatch[2]; }
-        }
-        if (/^##\s+Глава\s+\d+/i.test(line)) {
-            if (ch) addChapter(ch, content.join('\n').trim());
-            const titleText = line.replace(/^##\s+Глава\s+\d+\s*/i, '').trim();
-            ch = titleText;
-            content = [];
-            if (tagPrefix) content.push(tagPrefix);
-        } else if (ch) {
-            content.push(line);
+        let line = lines[i].trim();
+        
+        // Пропускаем пустые строки в начале документа
+        if (!line && chTitle === null) continue;
+        
+        let match = line.match(chapterRegex);
+
+        if (match) {
+            // Если мы нашли новую главу, сохраняем предыдущую (если она была)
+            if (chTitle !== null) {
+                state.chapters.push({ 
+                    title: chTitle, 
+                    fullBody: chContent.join('\n').trim() 
+                });
+            }
+
+            // match[1] - это то, что ДО ## (например, [AI]: или просто пробелы)
+            // match[2] - это название главы после ##
+            let prefix = match[1].trim(); 
+            chTitle = match[2].trim();    
+            chContent = [];
+
+            // Если перед ## был тег персонажа, обрабатываем его
+            if (prefix) {
+                // Извлекаем тег в формате [Имя] или [Имя]:
+                const tagMatch = prefix.match(/\[([^\]]+)\]:?/);
+                if (tagMatch) {
+                    const tagName = tagMatch[1];
+                    state.uniqueTags.add(tagName);
+                    // Добавляем тег в начало главы (можно закомментировать)
+                    chContent.push(prefix);
+                }
+            }
+        } else if (chTitle !== null) {
+            // Если мы уже внутри главы, копируем строки текста (с оригинальными пробелами)
+            chContent.push(lines[i]);
+            
+            // Ищем все теги персонажей в тексте для функции переименования
+            // Находим: [Имя], [Имя]:, Имя:
+            const tagsInLine = line.match(/\[([^\]]+)\]:?/g);
+            if (tagsInLine) {
+                tagsInLine.forEach(t => {
+                    const cleanTag = t.replace(/[\[\]:]/g, '');
+                    state.uniqueTags.add(cleanTag);
+                });
+            }
+            
+            // Также ищем теги без скобок в начале строки (формат "Имя: текст")
+            const simpleTagMatch = line.match(/^([A-Za-zА-Яа-яЁё\s]+):\s+/);
+            if (simpleTagMatch && simpleTagMatch[1].length < 30) { // ограничение длины имени
+                state.uniqueTags.add(simpleTagMatch[1].trim());
+            }
         }
     }
-    if (ch) addChapter(ch, content.join('\n').trim());
     
-    if (!state.chapters.length) { alert('Не найдено "## Глава N"'); log('✗ Нет глав'); return; }
+    // Сохраняем самую последнюю главу файла
+    if (chTitle !== null && chContent.length > 0) {
+        state.chapters.push({ 
+            title: chTitle, 
+            fullBody: chContent.join('\n').trim() 
+        });
+    }
     
-    log('✓ Разбито: ' + state.chapters.length + ' глав');
-    log('✓ Тегов: ' + state.uniqueTags.size);
+    // Проверка результата
+    if (state.chapters.length === 0) {
+        alert('Главы не найдены!\n\nУбедитесь, что главы помечены символами ##\n\nПримеры:\n## Глава 1\n## Chapter One: Начало\n[AI]: ## Пролог');
+        return;
+    }
     
-    if (state.uniqueTags.size > 0) document.getElementById('rename-btn').style.display = 'block';
+    log(`✓ Успешно! Найдено глав: ${state.chapters.length}`);
+    
+    // Показываем кнопку переименования, если найдены теги
+    if (state.uniqueTags.size > 0) {
+        document.getElementById('rename-btn').style.display = 'block';
+        log(`  Найдено уникальных тегов: ${state.uniqueTags.size}`);
+    }
+    
     renderChapters();
+    showTab('chapters');
 }
 
 function addChapter(title, body) {
@@ -446,11 +508,38 @@ function formatText() {
 function renderChapters() {
     const list = document.getElementById('chapters-list');
     list.innerHTML = '';
+    
+    // Автоопределение языка по первой главе
+    let defaultChapterWord = 'Глава'; // по умолчанию русский
+    
+    if (state.chapters.length > 0) {
+        const firstTitle = state.chapters[0].title;
+        // Если первая глава начинается с английских слов - используем английский
+        if (/^(Chapter|Part)/i.test(firstTitle)) {
+            defaultChapterWord = 'Chapter';
+        }
+    }
+    
     state.chapters.forEach((ch, i) => {
         const div = document.createElement('div');
         div.className = 'card';
+        
+        // Умная обработка заголовка главы
+        let displayTitle = ch.title;
+        
+        // Проверяем, начинается ли название с "Глава X" или "Chapter X"
+        const chapterPrefixMatch = displayTitle.match(/^(Глава|Chapter|Часть|Part)\s+(\d+)/i);
+        
+        if (chapterPrefixMatch) {
+            // Если уже есть "Глава X" - используем как есть
+            displayTitle = ch.title;
+        } else {
+            // Если нет префикса - добавляем номер на определённом языке
+            displayTitle = `${defaultChapterWord} ${i+1}: ${ch.title}`;
+        }
+        
         div.innerHTML = `
-            <h3>Глава ${i+1}: ${ch.title}</h3>
+            <h3>${displayTitle}</h3>
             <div class="btn-group">
                 <button onclick="downloadChapter(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">💾</button>
                 <button onclick="downloadChapterHTML(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">🌐</button>
