@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>📖 Kimi Book Studio</title>
-    <!-- Libraries -->
+    <!-- Библиотеки -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
@@ -167,16 +167,16 @@
     <div class="app-header">
         <h1>📖 Kimi Studio</h1>
         <p>Text Editor for Books</p>
-                    <a href="https://github.com/Roflsockie/Kimi-Studio#readme" target="_blank" style="color: #3dd; text-decoration: none; font-size: 12px;">📖 How to use (README)</a>
     </div>
 
     <div class="app-content">
+                    <a href="https://github.com/Roflsockie/Kimi-Studio#readme" target="_blank" style="color: #3dd; text-decoration: none; font-size: 12px;">📖 Как использовать (README)</a>
         <div id="import" class="tab-pane active">
             <button class="secondary" onclick="clearLog()">🗑️ Clear Log</button>
             <div class="log-box" id="log"></div>
 
             <div class="info-block">
-                💡 Markup: <code>## Chapter 1 Title</code><br>
+                💡 Markup: <code>## Chapter 1</code> or <code>## Глава 1</code><br>
                 Tags: <code>[AI]: text</code>
             </div>
 
@@ -185,10 +185,10 @@
 
             <textarea id="text" placeholder="Or paste text here..."></textarea>
 
-            <button class="primary" onclick="processText()">✂️ Split</button>
-            <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Names</button>
-            <button class="primary" onclick="formatText()">✨ Format</button>
-            <button class="secondary" onclick="downloadAllZip()">📦 ZIP</button>
+            <button class="primary" onclick="processText()">✂️ Split into Chapters</button>
+            <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Rename Tags</button>
+            <button class="primary" onclick="formatText()">✨ Format Text</button>
+            <button class="secondary" onclick="downloadAllZip()">📦 Download ZIP</button>
             <button class="success" onclick="showTab('export')">📤 Export</button>
             <button class="secondary" onclick="clearAll()">⚠️ Clear All</button>
         </div>
@@ -203,16 +203,16 @@
             
             <div class="export-grid">
                 <div style="text-align: center;">
-                    <img id="cover-preview" style="display: none;" alt="Poster">
-                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Poster</label>
+                    <img id="cover-preview" style="display: none;" alt="Cover">
+                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Cover Image</label>
                     <input type="file" id="cover" accept="image/*">
                 </div>
 
                 <div style="width: 100%;">
                     <input type="text" id="book-title" placeholder="📖 Book Title">
                     <input type="text" id="book-author" placeholder="✍️ Author">
-                    <input type="text" id="book-genre" placeholder="🎭 Genre (e.g., Sci-Fi)">
-                    <input type="text" id="book-date" placeholder="📅 Date">
+                    <input type="text" id="book-genre" placeholder="🎭 Genre (e.g., Fantasy)">
+                    <input type="text" id="book-date" placeholder="📅 Publication Date">
                     <textarea id="book-desc" placeholder="📝 Book Description..." style="min-height: 80px;"></textarea>
                 </div>
             </div>
@@ -220,7 +220,7 @@
             <div style="margin-top: 20px;">
                 <button class="danger" onclick="downloadFullTXT()">📝 TXT (Full Book)</button>
                 <button class="danger" onclick="downloadEPUB()">⬇️ EPUB (E-Book)</button>
-                <button class="info" onclick="downloadHTML()">🌐 HTML (Web Book)</button>
+                <button class="info" onclick="downloadHTML()">🌐 HTML (Web Book with Navigation)</button>
             </div>
         </div>
     </div>
@@ -301,7 +301,7 @@ document.getElementById('file').addEventListener('change', e => {
             } catch(e) {}
         }
         document.getElementById('text').value = text;
-        log('✓ File: ' + file.name);
+        log('✓ File loaded: ' + file.name);
     };
     reader.readAsText(file);
 });
@@ -314,49 +314,110 @@ document.getElementById('cover').addEventListener('change', e => {
         state.cover = evt.target.result;
         document.getElementById('cover-preview').src = evt.target.result;
         document.getElementById('cover-preview').style.display = 'block';
-        log('✓ Poster loaded');
+        log('✓ Cover image loaded');
     };
     reader.readAsDataURL(file);
 });
 
 function processText() {
-    const raw = document.getElementById('text').value.trim();
-    if (!raw) { alert('Enter text!'); return; }
+    const raw = document.getElementById('text').value;
+    if (!raw.trim()) { 
+        alert('Please enter text!'); 
+        return; 
+    }
     
     state.chapters = [];
     state.uniqueTags = new Set();
-    state.tagMap = {};
     
+    // Split text into lines
     let lines = raw.split('\n');
-    let ch = null, content = [];
-    
+    let chTitle = null;
+    let chContent = [];
+
+    // IMPROVED regex for finding chapters
+    // Finds: ## Chapter 1, ## Chapter 1: Beginning, [AI]: ## Chapter 1, ## Prologue, etc.
+    const chapterRegex = /^(.*)##\s+(.+)$/i;
+
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-        let tagPrefix = '';
-        // Updated regex to look for "Chapter" instead of "Глава"
-        if (/^\[.*\]:?\s*##\s+Chapter/i.test(line)) {
-            const tagMatch = line.match(/^(\[.*?\]:?)\s*(##\s+Chapter.*)/i);
-            if (tagMatch) { tagPrefix = tagMatch[1]; line = tagMatch[2]; }
-        }
-        if (/^##\s+Chapter\s+\d+/i.test(line)) {
-            if (ch) addChapter(ch, content.join('\n').trim());
-            const titleText = line.replace(/^##\s+Chapter\s+\d+\s*/i, '').trim();
-            ch = titleText;
-            content = [];
-            if (tagPrefix) content.push(tagPrefix);
-        } else if (ch) {
-            content.push(line);
+        let line = lines[i].trim();
+        
+        // Skip empty lines at the beginning of the document
+        if (!line && chTitle === null) continue;
+        
+        let match = line.match(chapterRegex);
+
+        if (match) {
+            // If we found a new chapter, save the previous one (if it exists)
+            if (chTitle !== null) {
+                state.chapters.push({ 
+                    title: chTitle, 
+                    fullBody: chContent.join('\n').trim() 
+                });
+            }
+
+            // match[1] - everything BEFORE ## (e.g., [AI]: or just spaces)
+            // match[2] - chapter title after ##
+            let prefix = match[1].trim(); 
+            chTitle = match[2].trim();    
+            chContent = [];
+
+            // If there was a character tag before ##, process it
+            if (prefix) {
+                // Extract tag in format [Name] or [Name]:
+                const tagMatch = prefix.match(/\[([^\]]+)\]:?/);
+                if (tagMatch) {
+                    const tagName = tagMatch[1];
+                    state.uniqueTags.add(tagName);
+                    // Add tag to the beginning of the chapter (can be commented out)
+                    chContent.push(prefix);
+                }
+            }
+        } else if (chTitle !== null) {
+            // If we're already inside a chapter, copy text lines (with original spaces)
+            chContent.push(lines[i]);
+            
+            // Search for all character tags in text for renaming function
+            // Finds: [Name], [Name]:, Name:
+            const tagsInLine = line.match(/\[([^\]]+)\]:?/g);
+            if (tagsInLine) {
+                tagsInLine.forEach(t => {
+                    const cleanTag = t.replace(/[\[\]:]/g, '');
+                    state.uniqueTags.add(cleanTag);
+                });
+            }
+            
+            // Also search for tags without brackets at the beginning of the line (format "Name: text")
+            const simpleTagMatch = line.match(/^([A-Za-zА-Яа-яЁё\s]+):\s+/);
+            if (simpleTagMatch && simpleTagMatch[1].length < 30) { // name length limit
+                state.uniqueTags.add(simpleTagMatch[1].trim());
+            }
         }
     }
-    if (ch) addChapter(ch, content.join('\n').trim());
     
-    if (!state.chapters.length) { alert('No "## Chapter N" found'); log('✗ No chapters'); return; }
+    // Save the very last chapter of the file
+    if (chTitle !== null && chContent.length > 0) {
+        state.chapters.push({ 
+            title: chTitle, 
+            fullBody: chContent.join('\n').trim() 
+        });
+    }
     
-    log('✓ Split into: ' + state.chapters.length + ' chapters');
-    log('✓ Tags: ' + state.uniqueTags.size);
+    // Check result
+    if (state.chapters.length === 0) {
+        alert('No chapters found!\n\nMake sure chapters are marked with ##\n\nExamples:\n## Chapter 1\n## Chapter One: Beginning\n[AI]: ## Prologue');
+        return;
+    }
     
-    if (state.uniqueTags.size > 0) document.getElementById('rename-btn').style.display = 'block';
+    log(`✓ Success! Chapters found: ${state.chapters.length}`);
+    
+    // Show rename button if tags were found
+    if (state.uniqueTags.size > 0) {
+        document.getElementById('rename-btn').style.display = 'block';
+        log(`  Unique tags found: ${state.uniqueTags.size}`);
+    }
+    
     renderChapters();
+    showTab('chapters');
 }
 
 function addChapter(title, body) {
@@ -402,7 +463,7 @@ function applyRenames() {
         if (input && input.value.trim()) newNames[tag] = input.value.trim();
     });
     
-    if (Object.keys(newNames).length === 0) { alert('Enter at least one name!'); return; }
+    if (Object.keys(newNames).length === 0) { alert('Please enter at least one name!'); return; }
     
     state.chapters.forEach(ch => {
         let body = ch.fullBody;
@@ -441,17 +502,44 @@ function formatText() {
         ch.body = ch.fullBody;
     });
     renderChapters();
-    log('✓ Formatted');
+    log('✓ Text formatted');
 }
 
 function renderChapters() {
     const list = document.getElementById('chapters-list');
     list.innerHTML = '';
+    
+    // Auto-detect language based on first chapter
+    let defaultChapterWord = 'Chapter'; // default English
+    
+    if (state.chapters.length > 0) {
+        const firstTitle = state.chapters[0].title;
+        // If first chapter starts with Russian words - use Russian
+        if (/^(Глава|Часть)/i.test(firstTitle)) {
+            defaultChapterWord = 'Глава';
+        }
+    }
+    
     state.chapters.forEach((ch, i) => {
         const div = document.createElement('div');
         div.className = 'card';
+        
+        // Smart chapter title processing
+        let displayTitle = ch.title;
+        
+        // Check if title starts with "Chapter X" or "Глава X"
+        const chapterPrefixMatch = displayTitle.match(/^(Глава|Chapter|Часть|Part)\s+(\d+)/i);
+        
+        if (chapterPrefixMatch) {
+            // If it already has "Chapter X" - use as is
+            displayTitle = ch.title;
+        } else {
+            // If no prefix - add number in detected language
+            displayTitle = `${defaultChapterWord} ${i+1}: ${ch.title}`;
+        }
+        
         div.innerHTML = `
-            <h3>Chapter ${i+1}: ${ch.title}</h3>
+            <h3>${displayTitle}</h3>
             <div class="btn-group">
                 <button onclick="downloadChapter(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">💾</button>
                 <button onclick="downloadChapterHTML(${i})" style="background: #333; color: #0dd; border: 1px solid #0dd;">🌐</button>
@@ -473,7 +561,7 @@ function formatChapterForHTML(content) {
     const lines = content.split('\n');
     let html = '';
     for (let i = 0; i < lines.length; i++) {
-        // STRICT SPACE CLEANUP
+        // ЖЕСТКАЯ ОЧИСТКА ПРОБЕЛОВ
         let line = lines[i].replace(/\s+/g, ' ').trim(); 
         if (!line) continue;
         
@@ -501,7 +589,7 @@ function downloadChapter(i) {
     txt = header + txt;
     const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
     saveAs(blob, 'Chapter_' + (i+1) + '_' + ch.title + '.txt');
-    log('✓ Downloaded chapter ' + (i+1));
+    log('✓ Chapter ' + (i+1) + ' downloaded');
 }
 
 function downloadChapterHTML(i) {
@@ -523,7 +611,7 @@ function deleteChapter(i) {
     if (confirm('Delete Chapter ' + (i+1) + '?')) {
         state.chapters.splice(i, 1);
         renderChapters();
-        log('✓ Deleted chapter ' + (i+1));
+        log('✓ Chapter ' + (i+1) + ' deleted');
     }
 }
 
@@ -634,19 +722,19 @@ function downloadHTML() {
     
     state.chapters.forEach((ch, i) => {
         const id = `ch-${i}`;
-        // TOC Link
+        // Link in table of contents
         tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">Chapter ${i+1}: ${escapeHtml(ch.title)}</a></li>`;
         
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
         
-        // Chapter Body with ID and Return Link
+        // Chapter body with ID and return link
         chaptersHtml += `
             <div class="chapter">
                 <h2 id="${id}">Chapter ${i+1}: ${ch.title}</h2>
                 ${htmlBody}
                 <div style="margin-top:20px;text-align:right;">
-                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Back to TOC</a>
+                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Back to Contents</a>
                 </div>
             </div><hr>`;
     });
@@ -680,7 +768,7 @@ hr{border:0;height:1px;background:#eee;margin:50px 0}
     if (desc) html += `<div class="desc">${escapeHtml(desc)}</div>`;
     html += `</div>`; 
 
-    // Insert TOC and Chapters
+    // Insert Table of Contents and Chapters
     html += tocHtml;
     html += `<div class="content">${chaptersHtml}</div></div></body></html>`;
     
@@ -697,7 +785,7 @@ hr{border:0;height:1px;background:#eee;margin:50px 0}
 }
 
 function clearAll() {
-    if (confirm('Clear all?')) {
+    if (confirm('Clear everything?')) {
         state = { chapters: [], uniqueTags: new Set(), tagMap: {}, cover: null };
         document.getElementById('text').value = '';
         document.getElementById('chapters-list').innerHTML = '';
