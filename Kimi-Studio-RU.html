@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
@@ -183,12 +183,12 @@
             <label class="file-btn" for="file">📁 Загрузить файл</label>
             <input type="file" id="file" accept=".txt,.json,.html,.md">
 
-            <textarea id="text" placeholder="Или вставьте текст здесь..."></textarea>
+            <textarea id="text" placeholder="Или вставьте текст сюда..."></textarea>
 
-            <button class="primary" onclick="processText()">✂️ Разбить</button>
-            <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Имена</button>
-            <button class="primary" onclick="formatText()">✨ Форматировать</button>
-            <button class="secondary" onclick="downloadAllZip()">📦 ZIP</button>
+            <button class="primary" onclick="processText()">✂️ Разделить на главы</button>
+            <button class="primary" id="rename-btn" onclick="showRenameUI()" style="display:none">🔤 Переименовать теги</button>
+            <button class="primary" onclick="formatText()">✨ Форматировать текст</button>
+            <button class="secondary" onclick="downloadAllZip()">📦 Скачать ZIP</button>
             <button class="success" onclick="showTab('export')">📤 Экспорт</button>
             <button class="secondary" onclick="clearAll()">⚠️ Очистить всё</button>
         </div>
@@ -203,22 +203,22 @@
             
             <div class="export-grid">
                 <div style="text-align: center;">
-                    <img id="cover-preview" style="display: none;" alt="Постер">
-                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Постер</label>
+                    <img id="cover-preview" style="display: none;" alt="Cover">
+                    <label class="file-btn" for="cover" style="font-size:12px; padding:8px;">🖼️ Обложка</label>
                     <input type="file" id="cover" accept="image/*">
                 </div>
 
                 <div style="width: 100%;">
                     <input type="text" id="book-title" placeholder="📖 Название книги">
                     <input type="text" id="book-author" placeholder="✍️ Автор">
-                    <input type="text" id="book-genre" placeholder="🎭 Жанр (например: Фантастика)">
-                    <input type="text" id="book-date" placeholder="📅 Дата написания">
+                    <input type="text" id="book-genre" placeholder="🎭 Жанр (например, Фэнтези)">
+                    <input type="text" id="book-date" placeholder="📅 Дата публикации">
                     <textarea id="book-desc" placeholder="📝 Описание книги..." style="min-height: 80px;"></textarea>
                 </div>
             </div>
 
             <div style="margin-top: 20px;">
-                <button class="danger" onclick="downloadFullTXT()">📝 TXT (Вся книга)</button>
+                <button class="danger" onclick="downloadFullTXT()">📝 TXT (Полная книга)</button>
                 <button class="danger" onclick="downloadEPUB()">⬇️ EPUB (Электронная книга)</button>
                 <button class="info" onclick="downloadHTML()">🌐 HTML (Веб-книга с навигацией)</button>
             </div>
@@ -301,7 +301,7 @@ document.getElementById('file').addEventListener('change', e => {
             } catch(e) {}
         }
         document.getElementById('text').value = text;
-        log('✓ Файл: ' + file.name);
+        log('✓ Файл загружен: ' + file.name);
     };
     reader.readAsText(file);
 });
@@ -314,7 +314,7 @@ document.getElementById('cover').addEventListener('change', e => {
         state.cover = evt.target.result;
         document.getElementById('cover-preview').src = evt.target.result;
         document.getElementById('cover-preview').style.display = 'block';
-        log('✓ Постер загружен');
+        log('✓ Обложка загружена');
     };
     reader.readAsDataURL(file);
 });
@@ -322,32 +322,32 @@ document.getElementById('cover').addEventListener('change', e => {
 function processText() {
     const raw = document.getElementById('text').value;
     if (!raw.trim()) { 
-        alert('Введите текст!'); 
+        alert('Пожалуйста, введите текст!'); 
         return; 
     }
     
     state.chapters = [];
     state.uniqueTags = new Set();
     
-    // Разбиваем текст на строки
+    // Split text into lines
     let lines = raw.split('\n');
     let chTitle = null;
     let chContent = [];
 
-    // УЛУЧШЕННОЕ регулярное выражение для поиска глав
-    // Находит: ## Глава 1, ## Chapter 1: Начало, [AI]: ## Глава 1, ## Пролог и т.д.
+    // IMPROVED regex for finding chapters
+    // Finds: ## Chapter 1, ## Chapter 1: Beginning, [AI]: ## Chapter 1, ## Prologue, etc.
     const chapterRegex = /^(.*)##\s+(.+)$/i;
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim();
         
-        // Пропускаем пустые строки в начале документа
+        // Skip empty lines at the beginning of the document
         if (!line && chTitle === null) continue;
         
         let match = line.match(chapterRegex);
 
         if (match) {
-            // Если мы нашли новую главу, сохраняем предыдущую (если она была)
+            // If we found a new chapter, save the previous one (if it exists)
             if (chTitle !== null) {
                 state.chapters.push({ 
                     title: chTitle, 
@@ -355,29 +355,29 @@ function processText() {
                 });
             }
 
-            // match[1] - это то, что ДО ## (например, [AI]: или просто пробелы)
-            // match[2] - это название главы после ##
+            // match[1] - everything BEFORE ## (e.g., [AI]: or just spaces)
+            // match[2] - chapter title after ##
             let prefix = match[1].trim(); 
             chTitle = match[2].trim();    
             chContent = [];
 
-            // Если перед ## был тег персонажа, обрабатываем его
+            // If there was a character tag before ##, process it
             if (prefix) {
-                // Извлекаем тег в формате [Имя] или [Имя]:
+                // Extract tag in format [Name] or [Name]:
                 const tagMatch = prefix.match(/\[([^\]]+)\]:?/);
                 if (tagMatch) {
                     const tagName = tagMatch[1];
                     state.uniqueTags.add(tagName);
-                    // Добавляем тег в начало главы (можно закомментировать)
+                    // Add tag to the beginning of the chapter (can be commented out)
                     chContent.push(prefix);
                 }
             }
         } else if (chTitle !== null) {
-            // Если мы уже внутри главы, копируем строки текста (с оригинальными пробелами)
+            // If we're already inside a chapter, copy text lines (with original spaces)
             chContent.push(lines[i]);
             
-            // Ищем все теги персонажей в тексте для функции переименования
-            // Находим: [Имя], [Имя]:, Имя:
+            // Search for all character tags in text for renaming function
+            // Finds: [Name], [Name]:, Name:
             const tagsInLine = line.match(/\[([^\]]+)\]:?/g);
             if (tagsInLine) {
                 tagsInLine.forEach(t => {
@@ -386,15 +386,15 @@ function processText() {
                 });
             }
             
-            // Также ищем теги без скобок в начале строки (формат "Имя: текст")
+            // Also search for tags without brackets at the beginning of the line (format "Name: text")
             const simpleTagMatch = line.match(/^([A-Za-zА-Яа-яЁё\s]+):\s+/);
-            if (simpleTagMatch && simpleTagMatch[1].length < 30) { // ограничение длины имени
+            if (simpleTagMatch && simpleTagMatch[1].length < 30) { // name length limit
                 state.uniqueTags.add(simpleTagMatch[1].trim());
             }
         }
     }
     
-    // Сохраняем самую последнюю главу файла
+    // Save the very last chapter of the file
     if (chTitle !== null && chContent.length > 0) {
         state.chapters.push({ 
             title: chTitle, 
@@ -402,15 +402,15 @@ function processText() {
         });
     }
     
-    // Проверка результата
+    // Check result
     if (state.chapters.length === 0) {
-        alert('Главы не найдены!\n\nУбедитесь, что главы помечены символами ##\n\nПримеры:\n## Глава 1\n## Chapter One: Начало\n[AI]: ## Пролог');
+        alert('Главы не найдены!\n\nУбедитесь, что главы помечены символами ##\n\nПримеры:\n## Глава 1\n## Глава первая: Начало\n[AI]: ## Пролог');
         return;
     }
     
     log(`✓ Успешно! Найдено глав: ${state.chapters.length}`);
     
-    // Показываем кнопку переименования, если найдены теги
+    // Show rename button if tags were found
     if (state.uniqueTags.size > 0) {
         document.getElementById('rename-btn').style.display = 'block';
         log(`  Найдено уникальных тегов: ${state.uniqueTags.size}`);
@@ -446,7 +446,7 @@ function showRenameUI() {
         label.textContent = tag + ':';
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = 'Новое имя...';
+        input.placeholder = 'New name...';
         input.id = 'rename-' + cleanTag;
         fieldsDiv.appendChild(label);
         fieldsDiv.appendChild(input);
@@ -463,7 +463,7 @@ function applyRenames() {
         if (input && input.value.trim()) newNames[tag] = input.value.trim();
     });
     
-    if (Object.keys(newNames).length === 0) { alert('Введите хотя бы одно имя!'); return; }
+    if (Object.keys(newNames).length === 0) { alert('Пожалуйста, введите хотя бы одно имя!'); return; }
     
     state.chapters.forEach(ch => {
         let body = ch.fullBody;
@@ -502,41 +502,27 @@ function formatText() {
         ch.body = ch.fullBody;
     });
     renderChapters();
-    log('✓ Отформатировано');
+    log('✓ Текст отформатирован');
 }
 
 function renderChapters() {
     const list = document.getElementById('chapters-list');
     list.innerHTML = '';
     
-    // Автоопределение языка по первой главе
-    let defaultChapterWord = 'Глава'; // по умолчанию русский
-    
-    if (state.chapters.length > 0) {
-        const firstTitle = state.chapters[0].title;
-        // Если первая глава начинается с английских слов - используем английский
-        if (/^(Chapter|Part)/i.test(firstTitle)) {
-            defaultChapterWord = 'Chapter';
-        }
-    }
-    
     state.chapters.forEach((ch, i) => {
         const div = document.createElement('div');
         div.className = 'card';
         
-        // Умная обработка заголовка главы
+        // --- УЛУЧШЕННАЯ ПРОВЕРКА ---
+        // Проверяем только наличие ключевого слова в начале. Цифры не важны.
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
+        
         let displayTitle = ch.title;
-        
-        // Проверяем, начинается ли название с "Глава X" или "Chapter X"
-        const chapterPrefixMatch = displayTitle.match(/^(Глава|Chapter|Часть|Part)\s+(\d+)/i);
-        
-        if (chapterPrefixMatch) {
-            // Если уже есть "Глава X" - используем как есть
-            displayTitle = ch.title;
-        } else {
-            // Если нет префикса - добавляем номер на определённом языке
-            displayTitle = `${defaultChapterWord} ${i+1}: ${ch.title}`;
+        if (!isChapterLike) {
+            // Если заголовок не похож на главу (например "River Rescue"), добавляем "Глава X: "
+            displayTitle = `Глава ${i+1}: ${ch.title}`;
         }
+        // ---------------------------
         
         div.innerHTML = `
             <h3>${displayTitle}</h3>
@@ -589,7 +575,7 @@ function downloadChapter(i) {
     txt = header + txt;
     const blob = new Blob([txt], { type: 'text/plain; charset=utf-8' });
     saveAs(blob, 'Глава_' + (i+1) + '_' + ch.title + '.txt');
-    log('✓ Скачана глава ' + (i+1));
+    log('✓ Глава ' + (i+1) + ' скачана');
 }
 
 function downloadChapterHTML(i) {
@@ -608,10 +594,10 @@ function downloadChapterHTML(i) {
 }
 
 function deleteChapter(i) {
-    if (confirm('Удалить Глава ' + (i+1) + '?')) {
+    if (confirm('Удалить главу ' + (i+1) + '?')) {
         state.chapters.splice(i, 1);
         renderChapters();
-        log('✓ Удалена глава ' + (i+1));
+        log('✓ Глава ' + (i+1) + ' удалена');
     }
 }
 
@@ -649,7 +635,17 @@ function downloadFullTXT() {
     
     for (let i = 0; i < state.chapters.length; i++) {
         const ch = state.chapters[i];
-        txt += 'ГЛАВА ' + (i+1) + ': ' + ch.title.toUpperCase() + '\n\n';
+        
+        // Та же проверка
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
+        let displayTitle = ch.title;
+        
+        if (!isChapterLike) {
+            displayTitle = `ГЛАВА ${i+1}: ${ch.title}`;
+        }
+
+        txt += displayTitle.toUpperCase() + '\n\n';
+        
         let chapterTxt = ensureTagFormatting(ch.fullBody);
         chapterTxt = chapterTxt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
         chapterTxt = stripHtmlTags(chapterTxt);
@@ -697,11 +693,18 @@ function downloadEPUB() {
     state.chapters.forEach((ch, i) => {
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
-        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(ch.title)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(ch.title)}</h2>${htmlBody}</body></html>`;
+        
+        // Умный заголовок для EPUB
+        let displayTitle = ch.title;
+        if (!/^(Chapter|Глава|Часть|Part)/i.test(displayTitle)) {
+             displayTitle = `Глава ${i+1}: ${displayTitle}`;
+        }
+
+        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(displayTitle)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(displayTitle)}</h2>${htmlBody}</body></html>`;
         oebps.file(`ch${i}.xhtml`, xhtml);
     });
     
-    zip.generateAsync({ type: 'blob' }).then(blob => {
+    zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' }).then(blob => {
         saveAs(blob, title + '.epub');
         log('✓ EPUB скачан');
     });
@@ -716,25 +719,32 @@ function downloadHTML() {
     const desc = document.getElementById('book-desc').value || '';
     const date = document.getElementById('book-date').value || '';
     
-    // Генерация Оглавления
-    let tocHtml = `<div id="toc" class="toc"><h3>Оглавление</h3><ul style="list-style:none;padding:0;">`;
+    let tocHtml = `<div id="toc" class="toc"><h3>Содержание</h3><ul style="list-style:none;padding:0;">`;
     let chaptersHtml = '';
     
     state.chapters.forEach((ch, i) => {
         const id = `ch-${i}`;
-        // Ссылка в оглавлении
-        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">Глава ${i+1}: ${escapeHtml(ch.title)}</a></li>`;
+        
+        // --- УЛУЧШЕННАЯ ПРОВЕРКА ДЛЯ ЭКСПОРТА ---
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
+        let displayTitle = ch.title;
+        
+        if (!isChapterLike) {
+            displayTitle = `Глава ${i+1}: ${ch.title}`;
+        }
+        // ----------------------------------------
+
+        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">${escapeHtml(displayTitle)}</a></li>`;
         
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
         
-        // Тело главы с ID и ссылкой возврата
         chaptersHtml += `
             <div class="chapter">
-                <h2 id="${id}">Глава ${i+1}: ${ch.title}</h2>
+                <h2 id="${id}">${escapeHtml(displayTitle)}</h2>
                 ${htmlBody}
                 <div style="margin-top:20px;text-align:right;">
-                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Вернуться к оглавлению</a>
+                    <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Назад к содержанию</a>
                 </div>
             </div><hr>`;
     });
@@ -758,7 +768,7 @@ hr{border:0;height:1px;background:#eee;margin:50px 0}
 </style></head><body><div class="container">`;
 
     html += `<div class="book-header">`;
-    if (state.cover) html += `<img src="${state.cover}" class="cover-img" alt="Обложка">`;
+    if (state.cover) html += `<img src="${state.cover}" class="cover-img" alt="Cover">`;
     html += `<h1>${escapeHtml(title)}</h1>`;
     html += `<div class="meta">`;
     if (author) html += `<span>${escapeHtml(author)}</span>`;
@@ -768,7 +778,6 @@ hr{border:0;height:1px;background:#eee;margin:50px 0}
     if (desc) html += `<div class="desc">${escapeHtml(desc)}</div>`;
     html += `</div>`; 
 
-    // Вставляем Оглавление и Главы
     html += tocHtml;
     html += `<div class="content">${chaptersHtml}</div></div></body></html>`;
     
