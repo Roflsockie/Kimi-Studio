@@ -647,9 +647,17 @@ function downloadFullTXT() {
     if (desc) txt += '\nDescription:\n' + desc + '\n';
     txt += '\n' + '='.repeat(60) + '\n\n';
     
-    for (let i = 0; i < state.chapters.length; i++) {
+for (let i = 0; i < state.chapters.length; i++) {
         const ch = state.chapters[i];
-        txt += 'CHAPTER ' + (i+1) + ': ' + ch.title.toUpperCase() + '\n\n';
+        
+        // Проверка: добавлять ли слово CHAPTER
+        let displayTitle = ch.title;
+        if (!/^(Chapter|Глава|Часть|Part|Epilogue|Prologue)/i.test(displayTitle)) {
+             displayTitle = `CHAPTER ${i+1}: ${displayTitle}`;
+        }
+
+        txt += displayTitle.toUpperCase() + '\n\n';
+        
         let chapterTxt = ensureTagFormatting(ch.fullBody);
         chapterTxt = chapterTxt.replace(/\n(<b>[^<]+<\/b>)/g, '\n\n$1');
         chapterTxt = stripHtmlTags(chapterTxt);
@@ -697,13 +705,15 @@ function downloadEPUB() {
     state.chapters.forEach((ch, i) => {
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
-        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(ch.title)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(ch.title)}</h2>${htmlBody}</body></html>`;
+        
+        // Умный заголовок для EPUB
+        let displayTitle = ch.title;
+        if (!/^(Chapter|Глава|Часть|Part)/i.test(displayTitle)) {
+             displayTitle = `Chapter ${i+1}: ${displayTitle}`;
+        }
+
+        const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(displayTitle)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(displayTitle)}</h2>${htmlBody}</body></html>`;
         oebps.file(`ch${i}.xhtml`, xhtml);
-    });
-    
-    zip.generateAsync({ type: 'blob' }).then(blob => {
-        saveAs(blob, title + '.epub');
-        log('✓ EPUB downloaded');
     });
 }
 
@@ -720,10 +730,20 @@ function downloadHTML() {
     let tocHtml = `<div id="toc" class="toc"><h3>Table of Contents</h3><ul style="list-style:none;padding:0;">`;
     let chaptersHtml = '';
     
-    state.chapters.forEach((ch, i) => {
+state.chapters.forEach((ch, i) => {
         const id = `ch-${i}`;
+        
+        // --- НАЧАЛО ИСПРАВЛЕНИЯ ---
+        // Проверяем, есть ли уже слово "Chapter/Глава" в названии
+        let displayTitle = ch.title;
+        // Регулярка ищет "Chapter 1" или "Глава 1" в начале
+        if (!/^(Chapter|Глава|Часть|Part)\s+\d+/i.test(displayTitle)) {
+            displayTitle = `Chapter ${i+1}: ${displayTitle}`;
+        }
+        // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+
         // Link in table of contents
-        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">Chapter ${i+1}: ${escapeHtml(ch.title)}</a></li>`;
+        tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">${escapeHtml(displayTitle)}</a></li>`;
         
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
@@ -731,7 +751,7 @@ function downloadHTML() {
         // Chapter body with ID and return link
         chaptersHtml += `
             <div class="chapter">
-                <h2 id="${id}">Chapter ${i+1}: ${ch.title}</h2>
+                <h2 id="${id}">${escapeHtml(displayTitle)}</h2>
                 ${htmlBody}
                 <div style="margin-top:20px;text-align:right;">
                     <a href="#toc" style="color:#999;text-decoration:none;font-size:14px;">↑ Back to Contents</a>
