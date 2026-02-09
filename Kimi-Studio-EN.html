@@ -170,7 +170,7 @@
     </div>
 
     <div class="app-content">
-                    <a href="https://github.com/Roflsockie/Kimi-Studio#readme" target="_blank" style="color: #3dd; text-decoration: none; font-size: 12px;">📖 Как использовать (README)</a>
+                    <a href="https://github.com/Roflsockie/Kimi-Studio#readme" target="_blank" style="color: #3dd; text-decoration: none; font-size: 12px;">📖 How to use (README)</a>
         <div id="import" class="tab-pane active">
             <button class="secondary" onclick="clearLog()">🗑️ Clear Log</button>
             <div class="log-box" id="log"></div>
@@ -509,34 +509,20 @@ function renderChapters() {
     const list = document.getElementById('chapters-list');
     list.innerHTML = '';
     
-    // Auto-detect language based on first chapter
-    let defaultChapterWord = 'Chapter'; // default English
-    
-    if (state.chapters.length > 0) {
-        const firstTitle = state.chapters[0].title;
-        // If first chapter starts with Russian words - use Russian
-        if (/^(Глава|Часть)/i.test(firstTitle)) {
-            defaultChapterWord = 'Глава';
-        }
-    }
-    
     state.chapters.forEach((ch, i) => {
         const div = document.createElement('div');
         div.className = 'card';
         
-        // Smart chapter title processing
+        // --- УЛУЧШЕННАЯ ПРОВЕРКА ---
+        // Проверяем только наличие ключевого слова в начале. Цифры не важны.
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
+        
         let displayTitle = ch.title;
-        
-        // Check if title starts with "Chapter X" or "Глава X"
-        const chapterPrefixMatch = displayTitle.match(/^(Глава|Chapter|Часть|Part)\s+(\d+)/i);
-        
-        if (chapterPrefixMatch) {
-            // If it already has "Chapter X" - use as is
-            displayTitle = ch.title;
-        } else {
-            // If no prefix - add number in detected language
-            displayTitle = `${defaultChapterWord} ${i+1}: ${ch.title}`;
+        if (!isChapterLike) {
+            // Если заголовок не похож на главу (например "River Rescue"), добавляем "Chapter X: "
+            displayTitle = `Chapter ${i+1}: ${ch.title}`;
         }
+        // ---------------------------
         
         div.innerHTML = `
             <h3>${displayTitle}</h3>
@@ -647,13 +633,15 @@ function downloadFullTXT() {
     if (desc) txt += '\nDescription:\n' + desc + '\n';
     txt += '\n' + '='.repeat(60) + '\n\n';
     
-for (let i = 0; i < state.chapters.length; i++) {
+    for (let i = 0; i < state.chapters.length; i++) {
         const ch = state.chapters[i];
         
-        // Проверка: добавлять ли слово CHAPTER
+        // Та же проверка
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
         let displayTitle = ch.title;
-        if (!/^(Chapter|Глава|Часть|Part|Epilogue|Prologue)/i.test(displayTitle)) {
-             displayTitle = `CHAPTER ${i+1}: ${displayTitle}`;
+        
+        if (!isChapterLike) {
+            displayTitle = `CHAPTER ${i+1}: ${ch.title}`;
         }
 
         txt += displayTitle.toUpperCase() + '\n\n';
@@ -715,6 +703,11 @@ function downloadEPUB() {
         const xhtml = `<?xml version="1.0" encoding="utf-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>${escapeHtml(displayTitle)}</title><style>p{margin-bottom:1em;line-height:1.6} strong{font-weight:bold}</style></head><body><h2>${escapeHtml(displayTitle)}</h2>${htmlBody}</body></html>`;
         oebps.file(`ch${i}.xhtml`, xhtml);
     });
+    
+    zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' }).then(blob => {
+        saveAs(blob, title + '.epub');
+        log('✓ EPUB downloaded');
+    });
 }
 
 function downloadHTML() {
@@ -726,29 +719,26 @@ function downloadHTML() {
     const desc = document.getElementById('book-desc').value || '';
     const date = document.getElementById('book-date').value || '';
     
-    // Generate Table of Contents
     let tocHtml = `<div id="toc" class="toc"><h3>Table of Contents</h3><ul style="list-style:none;padding:0;">`;
     let chaptersHtml = '';
     
-state.chapters.forEach((ch, i) => {
+    state.chapters.forEach((ch, i) => {
         const id = `ch-${i}`;
         
-        // --- НАЧАЛО ИСПРАВЛЕНИЯ ---
-        // Проверяем, есть ли уже слово "Chapter/Глава" в названии
+        // --- УЛУЧШЕННАЯ ПРОВЕРКА ДЛЯ ЭКСПОРТА ---
+        const isChapterLike = /^\s*(Chapter|Глава|Часть|Part|Epilogue|Prologue|Пролог|Эпилог|Введение|Introduction)/i.test(ch.title);
         let displayTitle = ch.title;
-        // Регулярка ищет "Chapter 1" или "Глава 1" в начале
-        if (!/^(Chapter|Глава|Часть|Part)\s+\d+/i.test(displayTitle)) {
-            displayTitle = `Chapter ${i+1}: ${displayTitle}`;
+        
+        if (!isChapterLike) {
+            displayTitle = `Chapter ${i+1}: ${ch.title}`;
         }
-        // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
+        // ----------------------------------------
 
-        // Link in table of contents
         tocHtml += `<li><a href="#${id}" style="text-decoration:none;color:#007bff;display:block;margin-bottom:5px;">${escapeHtml(displayTitle)}</a></li>`;
         
         let processedBody = ensureTagFormatting(ch.fullBody);
         const htmlBody = formatChapterForHTML(processedBody);
         
-        // Chapter body with ID and return link
         chaptersHtml += `
             <div class="chapter">
                 <h2 id="${id}">${escapeHtml(displayTitle)}</h2>
@@ -788,7 +778,6 @@ hr{border:0;height:1px;background:#eee;margin:50px 0}
     if (desc) html += `<div class="desc">${escapeHtml(desc)}</div>`;
     html += `</div>`; 
 
-    // Insert Table of Contents and Chapters
     html += tocHtml;
     html += `<div class="content">${chaptersHtml}</div></div></body></html>`;
     
