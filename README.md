@@ -114,6 +114,46 @@ If you find this tool useful, consider supporting the developer:
 
 ---
 
+## 🗺 Roadmap
+
+This tool was created by a fan for fans. I’m not a professional developer, but I want to make **Kimi Book Studio** even better! Here is what I’m dreaming of adding:
+
+### 🟢 Short-term (Soon)
+* **Multi-Character Support:** Better handling for stories with 3+ characters.
+* **Reading Stats:** Automatic word count and estimated reading time.
+* **Themes:** Dark mode and "Old Paper" styles for the HTML export.
+
+### 🟡 Mid-term (Planned)
+* **Smart Cleaning:** Improved logic to auto-remove `(OOC:)` notes and system artifacts.
+* **Cover Tool:** A simple cropper to help fit images to the 1.6:1 e-book ratio.
+* **File Merger:** Capability to combine multiple chat files into one book.
+
+### 🔴 Long-term (Vision)
+* **Character Profiles:** A "Dramatis Personae" page generated from the chat.
+* **Support for Others:** Import compatibility for SillyTavern or Character.AI exports.
+
+## 🗺 Планы по развитию (Roadmap)
+
+Этот проект создан фанатом для фанатов. Я не профессиональный программист, но хочу сделать **Kimi Book Studio** ещё лучше! Вот что я планирую добавить в будущем:
+
+### 🟢 Ближайшие цели
+* **Поддержка нескольких героев:** Улучшенная работа с историями, где участвуют 3 и более персонажа.
+* **Статистика:** Автоматический подсчет слов и примерного времени на чтение.
+* **Темы оформления:** Темная тема и стиль «старой бумаги» для HTML-версии.
+
+### 🟡 В планах
+* **Умная очистка:** Автоматическое удаление закадровых правок `(OOC:)` и системных сообщений.
+* **Инструмент для обложек:** Помощь в обрезке картинок под формат электронной книги (1.6:1).
+* **Слияние файлов:** Возможность объединять несколько чатов в одну большую книгу.
+
+### 🔴 Видение на будущее
+* **Профили персонажей:** Страница «Список героев» в начале книги на основе логов.
+* **Поддержка других платформ:** Импорт логов из SillyTavern или Character.AI.
+
+---
+
+---
+
 ## 📝 Лицензия
 **MIT License** — используйте свободно!
 
