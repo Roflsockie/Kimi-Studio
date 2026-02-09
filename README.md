@@ -3,6 +3,8 @@
 Convert your **Perchance AI Character Chat** dialogues into beautifully formatted books (EPUB, TXT, or HTML) with ease.
 
 ## 🚀 Quick Start
+> [!TIP]
+> **New to Kimi Studio?** Check out our [Full Visual Guide (PDF)](https://github.com/Roflsockie/Kimi-Studio/blob/main/From%20Perchance%20Ai%20Chat%20to%20Book%20Guide!.pdf) with screenshots for a smooth start!
 
 ### Try Online (Recommended):
 * [English Version →](https://roflsockie.github.io/Kimi-Studio/Kimi-Studio-EN.html)
